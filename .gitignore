@@ -1,0 +1,24 @@
+# Virtual environment
+venv/
+env/
+.venv/
+
+
+# Byte-code files
+*.pyc
+__pycache__/
+
+# Datasets and data
+data/raw/
+data/processed/
+*.csv
+*.tsv
+*.parquet
+*.pkl
+*.h5
+
+# Jupyter Notebook Checkpoints
+.ipynb_checkpoints
+
+audio
+tts_dataset_
