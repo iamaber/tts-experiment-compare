@@ -31,11 +31,54 @@ for name in ("transformer_engine", "OneLogger", "nemo_logger"):
 
 @hydra_runner(config_path="conf", config_name="hifigan")
 def main(cfg):
+    # Override dataset paths
+    cfg.model.train_ds.dataset = None
+    cfg.model.validation_ds.dataset = None
+
     trainer = pl.Trainer(**cfg.trainer)
     exp_manager(trainer, cfg.get("exp_manager", None))
     model = HifiGanModel(cfg=cfg.model, trainer=trainer)
-    model.maybe_init_from_pretrained_checkpoint(cfg=cfg)
-    trainer.fit(model)
+
+    # Manually load datasets
+    from nemo.collections.tts.data.vocoder_dataset import VocoderDataset
+
+    train_dataset = VocoderDataset(
+        cfg.train_dataset,
+        sample_rate=cfg.sample_rate,
+        n_segments=cfg.train_n_segments,
+        max_duration=cfg.train_max_duration,
+        min_duration=cfg.train_min_duration,
+        load_precomputed_mel=True,
+    )
+
+    val_dataset = VocoderDataset(
+        cfg.validation_datasets,
+        sample_rate=cfg.sample_rate,
+        n_segments=cfg.val_n_segments,
+        max_duration=cfg.val_max_duration,
+        min_duration=cfg.val_min_duration,
+        load_precomputed_mel=True,
+    )
+
+    from torch.utils.data import DataLoader
+
+    model.train_dataloader = lambda: DataLoader(
+        train_dataset,
+        batch_size=cfg.model.train_ds.dataloader_params.batch_size,
+        shuffle=True,
+        num_workers=cfg.model.train_ds.dataloader_params.num_workers,
+        pin_memory=True,
+        drop_last=True,
+    )
+    model.val_dataloader = lambda: [
+        DataLoader(
+            val_dataset,
+            batch_size=cfg.model.validation_ds.dataloader_params.batch_size,
+            shuffle=False,
+            num_workers=cfg.model.validation_ds.dataloader_params.num_workers,
+            pin_memory=True,
+        )
+    ]
 
 
 if __name__ == "__main__":

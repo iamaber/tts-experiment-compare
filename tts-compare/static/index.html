@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NeMo TTS Benchmark</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎙️ NeMo TTS Benchmark</h1>
+            <p class="subtitle">Compare text-to-speech models with real-time performance metrics</p>
+        </header>
+
+        <main>
+            <div class="input-section">
+                <div class="form-group">
+                    <label for="model-select">Select Model</label>
+                    <select id="model-select" class="form-control">
+                        <option value="">Loading models...</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="text-input">Input Text</label>
+                    <textarea 
+                        id="text-input" 
+                        class="form-control" 
+                        rows="4" 
+                        placeholder="Enter text to synthesize..."
+                    >Hello world, this is a test of the neural text to speech system.</textarea>
+                </div>
+
+                <button id="synthesize-btn" class="btn-primary">
+                    <span class="btn-text">Synthesize</span>
+                    <span class="btn-loader" style="display: none;">
+                        <span class="spinner"></span> Processing...
+                    </span>
+                </button>
+            </div>
+
+            <div id="results-section" class="results-section" style="display: none;">
+                <h2>Results</h2>
+                
+                <div class="audio-player-container">
+                    <audio id="audio-player" controls></audio>
+                </div>
+
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="metric-label">Latency</div>
+                        <div class="metric-value" id="latency-value">-</div>
+                        <div class="metric-unit">seconds</div>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="metric-label">Audio Duration</div>
+                        <div class="metric-value" id="duration-value">-</div>
+                        <div class="metric-unit">seconds</div>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="metric-label">Real-Time Factor</div>
+                        <div class="metric-value" id="rtf-value">-</div>
+                        <div class="metric-unit">RTF</div>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="metric-label">Sample Rate</div>
+                        <div class="metric-value" id="samplerate-value">-</div>
+                        <div class="metric-unit">Hz</div>
+                    </div>
+                </div>
+
+                <div class="resources-section">
+                    <h3>Resource Usage</h3>
+                    <div class="resource-grid">
+                        <div class="resource-item">
+                            <span class="resource-label">CPU Usage:</span>
+                            <span class="resource-value" id="cpu-value">-</span>
+                        </div>
+                        <div class="resource-item">
+                            <span class="resource-label">Current Memory:</span>
+                            <span class="resource-value" id="memory-value">-</span>
+                        </div>
+                        <div class="resource-item">
+                            <span class="resource-label">Memory Increase:</span>
+                            <span class="resource-value" id="memory-delta-value">-</span>
+                        </div>
+                        <div class="resource-item">
+                            <span class="resource-label">Peak Memory:</span>
+                            <span class="resource-value" id="peak-memory-value">-</span>
+                        </div>
+                        <div class="resource-item" id="gpu-allocated-container" style="display: none;">
+                            <span class="resource-label">GPU Allocated:</span>
+                            <span class="resource-value" id="gpu-allocated-value">-</span>
+                        </div>
+                        <div class="resource-item" id="gpu-peak-container" style="display: none;">
+                            <span class="resource-label">GPU Peak:</span>
+                            <span class="resource-value" id="gpu-peak-value">-</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="error-section" class="error-section" style="display: none;">
+                <h3>⚠️ Error</h3>
+                <p id="error-message"></p>
+            </div>
+        </main>
+
+        <footer>
+            <p>Powered by NVIDIA NeMo & FastAPI</p>
+        </footer>
+    </div>
+
+    <script>
+        const API_BASE = '';
+        
+        // Load available models
+        async function loadModels() {
+            try {
+                const response = await fetch(`${API_BASE}/api/models`);
+                const data = await response.json();
+                
+                const select = document.getElementById('model-select');
+                select.innerHTML = '<option value="">Select a model...</option>';
+                
+                data.models.forEach(model => {
+                    const option = document.createElement('option');
+                    option.value = model.id;
+                    option.textContent = model.name;
+                    select.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Failed to load models:', error);
+                document.getElementById('model-select').innerHTML = 
+                    '<option value="">Error loading models</option>';
+            }
+        }
+
+        // Synthesize speech
+        async function synthesize() {
+            const model = document.getElementById('model-select').value;
+            const text = document.getElementById('text-input').value;
+
+            if (!model) {
+                alert('Please select a model');
+                return;
+            }
+
+            if (!text.trim()) {
+                alert('Please enter some text');
+                return;
+            }
+
+            // Show loading state
+            const btn = document.getElementById('synthesize-btn');
+            btn.disabled = true;
+            btn.querySelector('.btn-text').style.display = 'none';
+            btn.querySelector('.btn-loader').style.display = 'inline-flex';
+
+            // Hide previous results/errors
+            document.getElementById('results-section').style.display = 'none';
+            document.getElementById('error-section').style.display = 'none';
+
+            try {
+                const response = await fetch(`${API_BASE}/api/synthesize`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ model, text }),
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    // Show audio player
+                    const audioPlayer = document.getElementById('audio-player');
+                    audioPlayer.src = data.audio_url;
+                    
+                    // Update metrics
+                    document.getElementById('latency-value').textContent = data.latency_s.toFixed(3);
+                    document.getElementById('duration-value').textContent = data.duration_s.toFixed(3);
+                    document.getElementById('rtf-value').textContent = data.rtf.toFixed(3);
+                    document.getElementById('samplerate-value').textContent = data.sample_rate;
+
+                    // Update resources
+                    if (data.resources) {
+                        document.getElementById('cpu-value').textContent = 
+                            `${data.resources.cpu_percent.toFixed(1)}%`;
+                        document.getElementById('memory-value').textContent = 
+                            `${data.resources.memory_mb.toFixed(0)} MB`;
+                        document.getElementById('memory-delta-value').textContent = 
+                            `${data.resources.memory_delta_mb.toFixed(0)} MB`;
+                        document.getElementById('peak-memory-value').textContent = 
+                            `${data.resources.peak_memory_mb.toFixed(0)} MB`;
+                        
+                        if (data.resources.gpu_peak_pytorch_mb) {
+                            document.getElementById('gpu-peak-container').style.display = 'block';
+                            document.getElementById('gpu-peak-value').textContent = 
+                                `${data.resources.gpu_peak_pytorch_mb.toFixed(0)} MB`;
+                        }
+                        
+                        if (data.resources.gpu_allocated_mb) {
+                            document.getElementById('gpu-allocated-container').style.display = 'block';
+                            document.getElementById('gpu-allocated-value').textContent = 
+                                `${data.resources.gpu_allocated_mb.toFixed(0)} MB`;
+                        }
+                    }
+
+                    document.getElementById('results-section').style.display = 'block';
+                } else {
+                    // Show error
+                    document.getElementById('error-message').textContent = data.error;
+                    document.getElementById('error-section').style.display = 'block';
+                }
+            } catch (error) {
+                document.getElementById('error-message').textContent = 
+                    `Request failed: ${error.message}`;
+                document.getElementById('error-section').style.display = 'block';
+            } finally {
+                // Reset button state
+                btn.disabled = false;
+                btn.querySelector('.btn-text').style.display = 'inline';
+                btn.querySelector('.btn-loader').style.display = 'none';
+            }
+        }
+
+        // Event listeners
+        document.getElementById('synthesize-btn').addEventListener('click', synthesize);
+        
+        // Allow Enter key in textarea with Ctrl/Cmd
+        document.getElementById('text-input').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+                synthesize();
+            }
+        });
+
+        // Load models on page load
+        loadModels();
+    </script>
+</body>
+</html>

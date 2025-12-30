@@ -22,3 +22,6 @@ data/processed/
 
 audio
 tts_dataset_
+
+# Large local models (not tracked in git)
+tts-test-kayutai/models/dsm_tts_1e68beda@240.safetensors

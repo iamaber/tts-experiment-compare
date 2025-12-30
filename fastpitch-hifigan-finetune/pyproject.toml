@@ -1,0 +1,15 @@
+[project]
+name = "nemo-multispeaker-tts"
+version = "1.0.0"
+description = "Multi-speaker TTS using NVIDIA NeMo with FastPitch and HiFiGAN"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "nemo-toolkit[all]>=2.6.0",
+    "soundfile>=0.12.0",
+    "numpy>=1.24.0",
+    "edge-tts>=7.2.7",
+    "resemblyzer>=0.1.4",
+    "speechbrain>=1.0.3",
+    "pyannote-audio>=3.4.0",
+]

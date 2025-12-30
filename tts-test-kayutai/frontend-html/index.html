@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kyutai TTS - Neural Text-to-Speech</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🗣️</text></svg>">
+</head>
+<body class="dark-theme">
+    <div class="app-container">
+        <!-- Header -->
+        <header>
+            <h1 class="gradient-text">Kyutai TTS</h1>
+            <p class="subtitle">High-fidelity neural text-to-speech with real-time streaming</p>
+        </header>
+
+        <!-- Controls Bar -->
+        <div class="glass-card controls-bar">
+            <div class="voice-control">
+                <label>Voice Model</label>
+                <div class="select-wrapper">
+                    <select id="voiceSelect">
+                        <option value="default">Default (Happy)</option>
+                    </select>
+                    <i data-lucide="chevron-down" class="select-icon"></i>
+                </div>
+            </div>
+
+            <div class="file-upload">
+                <label for="voiceUpload" class="upload-btn">
+                    <i data-lucide="upload"></i>
+                    <span>Clone Voice</span>
+                </label>
+                <input type="file" id="voiceUpload" accept="audio/*" hidden>
+            </div>
+
+            <button id="generateBtn" class="primary-btn">
+                <i data-lucide="play"></i>
+                <span>Generate Speech</span>
+            </button>
+        </div>
+
+        <div class="main-grid">
+            <!-- Left Column -->
+            <div class="left-col">
+                <!-- Text Input -->
+                <div class="glass-card input-section">
+                    <div class="section-header">
+                        <i data-lucide="message-square" class="icon-blue"></i>
+                        <h2>Text Input</h2>
+                    </div>
+                    <textarea id="textInput" placeholder="Enter text to convert to speech...">Hello! This is a demonstration of the Kyutai text to speech model.</textarea>
+                    <div class="char-count"><span id="charCount">0</span>/1000</div>
+                </div>
+
+                <!-- Audio Player & Visualization -->
+                <div id="audioSection" class="glass-card audio-section hidden">
+                    <div class="section-header">
+                        <i data-lucide="volume-2" class="icon-purple"></i>
+                        <h2>Generated Audio</h2>
+                    </div>
+                    
+                    <audio id="audioPlayer"></audio>
+                    
+                    <div class="player-controls">
+                        <button id="playBtn" class="control-btn"><i data-lucide="play"></i></button>
+                        <div class="progress-container">
+                            <span id="currentTime">0:00</span>
+                            <div class="progress-bar-wrapper">
+                                <input type="range" id="progressBar" value="0" min="0" max="100" step="0.1">
+                                <div class="progress-fill"></div>
+                            </div>
+                            <span id="duration">0:00</span>
+                        </div>
+                        <div class="volume-control">
+                            <i data-lucide="volume-2" id="volumeIcon"></i>
+                            <input type="range" id="volumeSlider" value="1" min="0" max="1" step="0.1">
+                        </div>
+                        <a id="downloadLink" class="control-btn" download><i data-lucide="download"></i></a>
+                    </div>
+
+                    <div class="word-highlight-container">
+                        <div id="highlightText" class="highlight-text"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column -->
+            <div class="right-col">
+                <!-- Performance Metrics -->
+                <div class="glass-card metrics-card">
+                    <div class="section-header">
+                        <i data-lucide="activity" class="icon-blue"></i>
+                        <h2>System Performance</h2>
+                    </div>
+
+                    <div class="metrics-grid">
+                        <!-- RTF -->
+                        <div class="metric-item">
+                            <div class="metric-label">
+                                <i data-lucide="zap" class="icon-yellow"></i>
+                                <span>Real-Time Factor</span>
+                            </div>
+                            <div class="metric-value big" id="rtfValue">---</div>
+                            <div class="metric-sub" id="rtfStatus">Waiting...</div>
+                        </div>
+
+                        <!-- CPU -->
+                        <div class="metric-item">
+                            <div class="metric-label">
+                                <i data-lucide="cpu" class="icon-blue"></i>
+                                <span>CPU Usage</span>
+                            </div>
+                            <div class="progress-bg">
+                                <div id="cpuBar" class="progress-fg blue"></div>
+                            </div>
+                            <div class="metric-value-small" id="cpuValue">0%</div>
+                        </div>
+
+                        <!-- GPU -->
+                        <div class="metric-item" id="gpuMetric">
+                            <div class="metric-label">
+                                <i data-lucide="server" class="icon-purple"></i>
+                                <span>GPU Usage</span>
+                            </div>
+                            <div class="progress-bg">
+                                <div id="gpuBar" class="progress-fg purple"></div>
+                            </div>
+                            <div class="metric-value-small" id="gpuValue">0%</div>
+                        </div>
+
+                        <!-- Memory -->
+                        <div class="metric-item">
+                            <div class="metric-label">
+                                <i data-lucide="hard-drive" class="icon-cyan"></i>
+                                <span>GPU Memory</span>
+                            </div>
+                             <div class="progress-bg">
+                                <div id="gpuMemBar" class="progress-fg cyan"></div>
+                            </div>
+                            <div class="metric-value-small" id="gpuMemValue">0 / 0 GB</div>
+                        </div>
+                        
+                        <!-- Gen Time -->
+                        <div class="metric-item">
+                             <div class="metric-label">
+                                <i data-lucide="clock" class="icon-green"></i>
+                                <span>Gen Time</span>
+                            </div>
+                            <div class="metric-value" id="genTimeValue">0 ms</div>
+                        </div>
+                    </div>
+                </div>
+                
+                 <!-- History Button -->
+                <button id="viewHistoryBtn" class="glass-card history-btn">
+                    <span>View History</span>
+                    <i data-lucide="chevron-right"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Analysis Modal -->
+    <div id="analysisModal" class="modal hidden">
+        <div class="modal-content glass-card">
+            <div class="modal-header">
+                <h2>Generation History</h2>
+                <button id="closeModalBtn"><i data-lucide="x"></i></button>
+            </div>
+            <div class="table-container">
+                <table id="historyTable">
+                    <thead>
+                        <tr>
+                            <th>Time</th>
+                            <th>Text</th>
+                            <th>Duration</th>
+                            <th>Gen Time</th>
+                            <th>RTF</th>
+                            <th>Device</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+            <button id="exportBtn" class="secondary-btn">Export JSON</button>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,317 @@
+const API_URL = 'http://localhost:8000';
+
+// State
+let selectedVoice = 'default';
+let audioContext = null;
+let currentAudio = null;
+let wordTimings = [];
+let isPlaying = false;
+
+// DOM Elements
+const voiceSelect = document.getElementById('voiceSelect');
+const voiceUpload = document.getElementById('voiceUpload');
+const generateBtn = document.getElementById('generateBtn');
+const textInput = document.getElementById('textInput');
+const charCount = document.getElementById('charCount');
+const audioSection = document.getElementById('audioSection');
+const audioPlayer = document.getElementById('audioPlayer');
+const playBtn = document.getElementById('playBtn');
+const progressBar = document.getElementById('progressBar');
+const currentTimeEl = document.getElementById('currentTime');
+const durationEl = document.getElementById('duration');
+const volumeSlider = document.getElementById('volumeSlider');
+const highlightText = document.getElementById('highlightText');
+const downloadLink = document.getElementById('downloadLink');
+
+// Metrics Elements
+const rtfValue = document.getElementById('rtfValue');
+const rtfStatus = document.getElementById('rtfStatus');
+const cpuValue = document.getElementById('cpuValue');
+const cpuBar = document.getElementById('cpuBar');
+const gpuValue = document.getElementById('gpuValue');
+const gpuBar = document.getElementById('gpuBar');
+const gpuMemValue = document.getElementById('gpuMemValue');
+const gpuMemBar = document.getElementById('gpuMemBar');
+const genTimeValue = document.getElementById('genTimeValue');
+
+// Modal Elements
+const viewHistoryBtn = document.getElementById('viewHistoryBtn');
+const analysisModal = document.getElementById('analysisModal');
+const closeModalBtn = document.getElementById('closeModalBtn');
+const historyTable = document.getElementById('historyTable').querySelector('tbody');
+const exportBtn = document.getElementById('exportBtn');
+
+// Initialize Lucide Icons
+lucide.createIcons();
+
+// --- Init ---
+async function init() {
+    await loadVoices();
+    startSystemPolling();
+}
+
+// --- Voice Management ---
+async function loadVoices() {
+    try {
+        const response = await fetch(`${API_URL}/api/voices`);
+        const voices = await response.json();
+        
+        voiceSelect.innerHTML = ''; // Clear existing
+        voices.forEach(voice => {
+            const option = document.createElement('option');
+            option.value = voice.id;
+            option.textContent = `${voice.name} ${voice.is_custom ? '(Custom)' : ''}`;
+            voiceSelect.appendChild(option);
+        });
+    } catch (error) {
+        console.error('Failed to load voices:', error);
+    }
+}
+
+voiceSelect.addEventListener('change', (e) => {
+    selectedVoice = e.target.value;
+});
+
+voiceUpload.addEventListener('change', async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append('audio', file);
+    const name = file.name.replace(/\.[^/.]+$/, ""); // Remove extension
+
+    try {
+        const res = await fetch(`${API_URL}/api/clone-voice?name=${encodeURIComponent(name)}`, {
+            method: 'POST',
+            body: formData
+        });
+        if (res.ok) {
+            await loadVoices();
+            // Select the new voice
+            const voices = await (await fetch(`${API_URL}/api/voices`)).json();
+            const newVoice = voices.find(v => v.name === name); // Simplified finding
+            if(newVoice) voiceSelect.value = newVoice.id;
+            selectedVoice = newVoice ? newVoice.id : selectedVoice;
+            alert('Voice uploaded successfully!');
+        }
+    } catch (error) {
+        alert('Upload failed');
+    }
+});
+
+// --- Text Input ---
+textInput.addEventListener('input', (e) => {
+    charCount.textContent = e.target.value.length;
+});
+
+// --- Generation ---
+generateBtn.addEventListener('click', async () => {
+    const text = textInput.value.trim();
+    if (!text) return;
+
+    setLoading(true);
+    
+    try {
+        const response = await fetch(`${API_URL}/api/tts`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                text, 
+                voice: selectedVoice,
+                cfg_coef: 2.0  // Voice conditioning strength (1.0-4.0, higher = stronger)
+            })
+        });
+
+        if (!response.ok) throw new Error('Generation failed');
+
+        const data = await response.json();
+        handleGenerationSuccess(data);
+    } catch (error) {
+        console.error(error);
+        alert('Generation failed. Ensure backend is running.');
+    } finally {
+        setLoading(false);
+    }
+});
+
+function setLoading(isLoading) {
+    if (isLoading) {
+        generateBtn.disabled = true;
+        generateBtn.innerHTML = '<i data-lucide="loader-2" class="animate-spin"></i><span>Generating...</span>';
+        lucide.createIcons();
+    } else {
+        generateBtn.disabled = false;
+        generateBtn.innerHTML = '<i data-lucide="play"></i><span>Generate Speech</span>';
+        lucide.createIcons();
+    }
+}
+
+function handleGenerationSuccess(data) {
+    // Audio Setup
+    currentAudio = new Audio(`${API_URL}${data.audio_url}`);
+    audioPlayer.src = `${API_URL}${data.audio_url}`;
+    audioSection.classList.remove('hidden');
+    downloadLink.href = `${API_URL}${data.audio_url}`;
+    downloadLink.download = `tts_${Date.now()}.wav`;
+
+    // Word Highlighting Setup
+    wordTimings = data.word_timings;
+    renderWordHighlighting(data.word_timings);
+
+    // Update Metrics
+    updateMetrics(data.metrics);
+    updateHistoryTable(); // Refresh history
+
+    // Play Audio
+    audioPlayer.play();
+    isPlaying = true;
+    updatePlayBtn();
+}
+
+// --- Audio Player & Highlighting ---
+function renderWordHighlighting(timings) {
+    highlightText.innerHTML = '';
+    timings.forEach((timing, index) => {
+        const span = document.createElement('span');
+        span.textContent = timing.word;
+        span.className = 'highlight-word';
+        span.dataset.start = timing.start;
+        span.dataset.end = timing.end;
+        span.onclick = () => {
+            audioPlayer.currentTime = timing.start;
+            audioPlayer.play();
+        };
+        highlightText.appendChild(span);
+    });
+}
+
+audioPlayer.addEventListener('timeupdate', () => {
+    const current = audioPlayer.currentTime;
+    const duration = audioPlayer.duration;
+    
+    // Update progress bar
+    const progress = (current / duration) * 100;
+    progressBar.value = progress || 0;
+    document.querySelector('.progress-fill').style.width = `${progress}%`;
+    
+    currentTimeEl.textContent = formatTime(current);
+    durationEl.textContent = formatTime(duration);
+
+    // Update Highlighting
+    const words = highlightText.children;
+    for (let word of words) {
+        const start = parseFloat(word.dataset.start);
+        const end = parseFloat(word.dataset.end);
+        if (current >= start && current <= end) {
+            word.classList.add('active');
+            word.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        } else {
+            word.classList.remove('active');
+        }
+    }
+});
+
+audioPlayer.addEventListener('ended', () => {
+    isPlaying = false;
+    updatePlayBtn();
+});
+
+playBtn.addEventListener('click', () => {
+    if (isPlaying) {
+        audioPlayer.pause();
+    } else {
+        audioPlayer.play();
+    }
+    isPlaying = !isPlaying;
+    updatePlayBtn();
+});
+
+progressBar.addEventListener('input', (e) => {
+    const time = (e.target.value / 100) * audioPlayer.duration;
+    audioPlayer.currentTime = time;
+});
+
+volumeSlider.addEventListener('input', (e) => {
+    audioPlayer.volume = e.target.value;
+});
+
+function updatePlayBtn() {
+    playBtn.innerHTML = isPlaying ? '<i data-lucide="pause"></i>' : '<i data-lucide="play"></i>';
+    lucide.createIcons();
+}
+
+function formatTime(seconds) {
+    if (isNaN(seconds)) return "0:00";
+    const m = Math.floor(seconds / 60);
+    const s = Math.floor(seconds % 60);
+    return `${m}:${s.toString().padStart(2, '0')}`;
+}
+
+// --- Metrics & System Polling ---
+function updateMetrics(metrics) {
+    rtfValue.textContent = `${metrics.rtf.toFixed(3)}x`;
+    rtfStatus.textContent = metrics.rtf < 1 ? 'Faster than real-time' : 'Slower than real-time';
+    rtfStatus.style.color = metrics.rtf < 1 ? 'var(--accent-green)' : 'var(--accent-yellow)';
+    
+    genTimeValue.textContent = `${(metrics.generation_time * 1000).toFixed(0)} ms`;
+}
+
+async function startSystemPolling() {
+    setInterval(async () => {
+        try {
+            const res = await fetch(`${API_URL}/api/system-info`);
+            const info = await res.json();
+            
+            // CPU
+            cpuValue.textContent = `${info.cpu_percent.toFixed(1)}%`;
+            cpuBar.style.width = `${info.cpu_percent}%`;
+
+            // GPU
+            if (info.gpu_percent != null) {
+                gpuValue.textContent = `${info.gpu_percent.toFixed(1)}%`;
+                gpuBar.style.width = `${info.gpu_percent}%`;
+            }
+
+            // GPU Memory
+            if (info.gpu_memory_used != null) {
+                gpuMemValue.textContent = `${info.gpu_memory_used.toFixed(1)} / ${info.gpu_memory_total.toFixed(1)} GB`;
+                const memPercent = (info.gpu_memory_used / info.gpu_memory_total) * 100;
+                gpuMemBar.style.width = `${memPercent}%`;
+            }
+        } catch (e) {
+            // Silently fail on connection loss
+        }
+    }, 1000);
+}
+
+// --- History Modal ---
+viewHistoryBtn.addEventListener('click', async () => {
+    analysisModal.classList.remove('hidden');
+    await updateHistoryTable();
+});
+
+closeModalBtn.addEventListener('click', () => {
+    analysisModal.classList.add('hidden');
+});
+
+async function updateHistoryTable() {
+    const res = await fetch(`${API_URL}/api/metrics`);
+    const data = await res.json();
+    historyTable.innerHTML = '';
+    
+    data.history.reverse().forEach(entry => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${new Date(entry.timestamp).toLocaleTimeString()}</td>
+            <td>${entry.text.substring(0, 30)}...</td>
+            <td>${entry.audio_duration.toFixed(2)}s</td>
+            <td>${entry.generation_time.toFixed(2)}s</td>
+            <td>${entry.rtf.toFixed(2)}x</td>
+            <td>${entry.device}</td>
+        `;
+        historyTable.appendChild(row);
+    });
+}
+
+// Init call
+init();
