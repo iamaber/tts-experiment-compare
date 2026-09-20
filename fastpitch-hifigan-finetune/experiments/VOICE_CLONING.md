@@ -1,8 +1,8 @@
-# Custom Voice Cloning Guide
+# Custom voice cloning guide
 
-## Quick Start
+## Quick start
 
-### Step 1: Extract Your Voice Embedding
+### Step 1: extract your voice embedding
 
 ```bash
 # Record 10-30 seconds of your voice and save as WAV
@@ -12,30 +12,20 @@ uv run python clone_voice.py my_voice.wav
 
 This creates `custom_voice.pt` with your voice embedding.
 
-### Step 2: Generate Speech with Your Voice
+### Step 2: generate speech with your voice
 
 ```bash
 # Use your voice to generate speech:
 uv run python custom_tts.py custom_voice.pt "Hello, this is my cloned voice!"
 ```
 
-## Detailed Usage
+## Detailed usage
 
-### Recording Your Voice
+### Recording your voice
 
-**Requirements:**
-- **Duration**: 10-30 seconds (longer is better)
-- **Quality**: Clear, no background noise
-- **Format**: WAV, MP3, or any audio format
-- **Content**: Read naturally, vary intonation
+Record 10-30 seconds of clear speech with no background noise. Longer recordings work better. WAV, MP3, and other audio formats work. Read naturally, vary intonation, and include different tones. Use a good microphone.
 
-**Tips:**
-- Speak clearly and naturally
-- Include different emotions/tones
-- Avoid background noise
-- Use good microphone quality
-
-### Extract Embedding
+### Extract embedding
 
 ```python
 from clone_voice import clone_voice
@@ -44,7 +34,7 @@ from clone_voice import clone_voice
 clone_voice("my_voice.wav", output_embedding="my_voice.pt")
 ```
 
-### Use Custom Voice
+### Use custom voice
 
 ```python
 from custom_tts import use_custom_voice
@@ -58,7 +48,7 @@ use_custom_voice(
 )
 ```
 
-### Advanced: Multiple Custom Voices
+### Multiple custom voices
 
 ```python
 from custom_tts import CustomVoiceTTS
@@ -77,32 +67,32 @@ tts.generate("Voice 1 speaking", speaker=0, output="v1.wav")
 tts.generate("Voice 2 speaking", speaker=1, output="v2.wav")
 ```
 
-## How It Works
+## How it works
 
-1. **Speaker Encoder**: Uses SpeechBrain's ECAPA-TDNN model
-2. **Embedding Extraction**: Converts your voice to a 192D vector
-3. **Embedding Injection**: Replaces a speaker's embedding in FastPitch
-4. **Synthesis**: FastPitch uses your embedding to generate speech
+1. SpeechBrain's ECAPA-TDNN model encodes the speaker.
+2. It converts your voice to a 192D vector.
+3. The script replaces one speaker's embedding in FastPitch with that vector.
+4. FastPitch generates speech from your embedding.
 
 ## Troubleshooting
 
-### "Dimension mismatch" Warning
+### "Dimension mismatch" warning
 
-The script automatically adapts embeddings to the correct size. This is normal and usually works fine.
+The script resizes embeddings to the expected size. This warning is expected.
 
-### Poor Quality Output
+### Poor quality output
 
-- **Solution 1**: Use longer/better quality reference audio
-- **Solution 2**: Try different speakers to replace (0-12799)
-- **Solution 3**: Adjust pace parameter
+- Use longer or cleaner reference audio.
+- Replace a different speaker (0-12799).
+- Adjust the pace parameter.
 
-### Voice Doesn't Sound Like You
+### Voice doesn't sound like you
 
-- Record more natural speech (10-30 seconds)
-- Ensure good audio quality
-- Try multiple recordings and pick the best
+- Record 10-30 seconds of natural speech.
+- Check the audio quality.
+- Make several recordings and pick the best one.
 
-## File Structure
+## File structure
 
 ```
 my_voice.wav          # Your voice recording
@@ -110,7 +100,7 @@ custom_voice.pt       # Extracted embedding
 custom_output.wav     # Generated speech
 ```
 
-## Complete Example
+## Complete example
 
 ```bash
 # 1. Record your voice (save as my_voice.wav)
@@ -126,7 +116,7 @@ uv run python custom_tts.py custom_voice.pt "Testing my cloned voice"
 
 ## Notes
 
-- First run downloads speaker encoder (~80MB)
-- Embedding extraction takes ~5 seconds
-- Works with any audio format (WAV, MP3, etc.)
-- Can replace any of the 12,800 speakers
+- The first run downloads the speaker encoder (~80MB).
+- Embedding extraction takes ~5 seconds.
+- Any audio format works (WAV, MP3, etc.).
+- You can replace any of the 12,800 speakers.

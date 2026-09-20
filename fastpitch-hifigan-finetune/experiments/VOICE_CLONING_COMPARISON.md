@@ -1,114 +1,105 @@
-# Voice Cloning Comparison - All Methods Tested
+# Voice cloning comparison: all methods tested
 
 ## Summary
 
-Tested 3 different speaker encoders for voice cloning with FastPitch:
+We tested 3 speaker encoders for voice cloning with FastPitch:
 
-| Method | Embedding Size | Compatibility | Result |
+| Method | Embedding size | Compatibility | Result |
 |--------|---------------|---------------|---------|
-| **Resemblyzer** | 256D | ⚠️ Poor | Padded to 384D with zeros |
-| **Neural Projection** | 256D → 384D | ⚠️ Fair | Untrained projection network |
-| **NVIDIA TitaNet** | 192D | ✅ Best | Same NeMo ecosystem |
+| Resemblyzer | 256D | Poor | Padded to 384D with zeros |
+| Neural projection | 256D to 384D | Fair | Untrained projection network |
+| NVIDIA TitaNet | 192D | Best | Same NeMo toolkit |
 
-## Files Created
+## Files created
 
 ### Embeddings
-- `custom_voice.pt` - Resemblyzer (256D)
-- `custom_voice_384d.pt` - Neural projection (384D)
-- `custom_voice_nemo.pt` - **TitaNet (192D)** ⭐ Recommended
+- `custom_voice.pt`: Resemblyzer (256D)
+- `custom_voice_384d.pt`: neural projection (384D)
+- `custom_voice_nemo.pt`: TitaNet (192D), recommended
 
 ### Scripts
-- `clone_voice.py` - Resemblyzer extractor
-- `clone_voice_improved.py` - Neural projection
-- `clone_voice_nemo.py` - **NVIDIA TitaNet** ⭐ Recommended
-- `custom_tts.py` - TTS with custom embeddings
+- `clone_voice.py`: Resemblyzer extractor
+- `clone_voice_improved.py`: neural projection
+- `clone_voice_nemo.py`: NVIDIA TitaNet, recommended
+- `custom_tts.py`: TTS with custom embeddings
 
-## Test Results
+## Test results
 
-All three methods generated `custom_output.wav` successfully.
+All three methods generated `custom_output.wav`.
 
-### Dimension Handling
+### Dimension handling
 
-**Resemblyzer:**
+Resemblyzer:
 ```
 ⚠️ Dimension mismatch: embedding is 256D, need 384D
    Attempting to adapt... (zero-padding)
 ```
 
-**Neural Projection:**
+Neural projection:
 ```
 ✅ Custom voice injected into speaker 0 (no warnings)
    But: untrained projection = random mapping
 ```
 
-**TitaNet:**
+TitaNet:
 ```
 ⚠️ Dimension mismatch: embedding is 192D, need 384D
    Attempting to adapt... (zero-padding)
 ```
 
-## The Fundamental Problem
+## The underlying problem
 
-**All methods face the same issue:**
+FastPitch learns its 384D speaker embeddings during training, and they are specific to the model. External speaker encoders (Resemblyzer, TitaNet) produce embeddings in different spaces:
 
-FastPitch's 384D speaker embeddings are **learned during training** and are model-specific. External speaker encoders (resemblyzer, TitaNet) produce embeddings in different "spaces":
+- Resemblyzer: 256D general speaker space
+- TitaNet: 192D NeMo speaker verification space
+- FastPitch: 384D learned space specific to the model
 
-- **Resemblyzer**: 256D universal speaker space
-- **TitaNet**: 192D NeMo speaker verification space  
-- **FastPitch**: 384D model-specific learned space
+FastPitch cannot interpret embeddings from another space.
 
-**Injecting external embeddings = speaking different languages**
+Even TitaNet, also from NVIDIA NeMo, doesn't match:
+- TitaNet is trained for speaker verification (is this the same person?).
+- FastPitch embeddings are trained for synthesis (how does this person sound?).
 
-Even TitaNet (from NVIDIA NeMo) doesn't match because:
-- TitaNet is trained for **speaker verification** (is this the same person?)
-- FastPitch embeddings are trained for **voice synthesis** (how does this person sound?)
-
-## Why Voice Doesn't Match
+## Why the voice doesn't match
 
 When we inject external embeddings:
-1. Dimension mismatch requires padding/projection
-2. Padding with zeros = meaningless values to FastPitch
-3. FastPitch doesn't understand the embedding
-4. Result: Generic/robotic voice, not your voice
+1. The dimension mismatch requires padding or projection.
+2. Zero padding adds values that mean nothing to FastPitch.
+3. FastPitch cannot interpret the embedding.
+4. The output is a generic, robotic voice, not your voice.
 
-## The Only Real Solution
+## Fine-tune FastPitch
 
-### **Fine-Tune FastPitch**
+Fine-tuning trains FastPitch to learn a new 384D embedding for your voice. That embedding lives in FastPitch's learned space, so the model can use it for synthesis.
 
-Train FastPitch to learn a **new 384D embedding** for your voice:
+Requirements:
+- Your voice recording: `custom-voice/record.wav` (155s), available
+- Transcript: `custom-voice/record.txt`, available
+- GPU: RTX 3090 Ti, available
+- Time: 2-4 hours of training
 
-**Advantages:**
-- ✅ Embedding is in FastPitch's learned space
-- ✅ Perfect voice match
-- ✅ Natural, high-quality synthesis
-
-**Requirements:**
-- Your voice recording: `custom-voice/record.wav` (155s) ✅
-- Transcript: `custom-voice/record.txt` ✅
-- GPU: RTX 3090 Ti ✅
-- Time: 2-4 hours training
-
-**This is what the project was originally designed for!**
+The project was originally built for this workflow.
 
 ## Recommendation
 
-**Stop trying to inject embeddings** and fine-tune FastPitch properly.
+Stop injecting embeddings and fine-tune FastPitch.
 
-The embedding injection approach is fundamentally limited because:
-- External encoders use different embedding spaces
-- Dimension adaptation loses voice information
-- FastPitch can't interpret external embeddings
+Embedding injection cannot work here because:
+- External encoders use different embedding spaces.
+- Dimension adaptation loses voice information.
+- FastPitch can't interpret external embeddings.
 
-**Use the proper workflow:**
-1. Prepare your data (already done!)
-2. Fine-tune FastPitch on your voice
-3. Get perfect voice cloning results
+Workflow:
+1. Prepare your data (done).
+2. Fine-tune FastPitch on your voice.
+3. Generate speech with the fine-tuned model.
 
 ---
 
-## Quick Commands
+## Quick commands
 
-### Using TitaNet (Best of the 3 methods)
+### Using TitaNet (best of the 3 methods)
 ```bash
 # Extract embedding
 uv run python clone_voice_nemo.py custom-voice/record.wav
@@ -117,7 +108,7 @@ uv run python clone_voice_nemo.py custom-voice/record.wav
 uv run python custom_tts.py custom_voice_nemo.pt "Your text here"
 ```
 
-### Fine-Tuning (Proper solution)
+### Fine-tuning
 ```bash
 # Coming soon - need to set up training pipeline
 ```

@@ -1,41 +1,40 @@
-# Experiments - Voice Cloning Attempts
+# Experiments: voice cloning attempts
 
-This folder contains experimental implementations and approaches we tried for voice cloning with FastPitch.
+This folder holds the voice cloning approaches we tried with FastPitch.
 
 ## Files
 
-### **Experimental Scripts**
-- `clone_voice.py` - Resemblyzer encoder (256D, zero-padding)
-- `clone_voice_improved.py` - Neural projection (untrained)
-- `clone_voice_nemo.py` - TitaNet encoder (embedding replacement)
-- `custom_tts.py` - TTS with embedding replacement
-- `proper_voice_cloning.py` - Single-speaker FastPitch attempt
-- `fastpitch_projection.py` - Projection layer (embedding replacement)
+### Experimental scripts
+- `clone_voice.py`: Resemblyzer encoder (256D, zero-padding)
+- `clone_voice_improved.py`: neural projection (untrained)
+- `clone_voice_nemo.py`: TitaNet encoder (embedding replacement)
+- `custom_tts.py`: TTS with embedding replacement
+- `proper_voice_cloning.py`: single-speaker FastPitch attempt
+- `fastpitch_projection.py`: projection layer (embedding replacement)
 
-### **Documentation**
-- `VOICE_CLONING.md` - Initial voice cloning guide
-- `VOICE_CLONING_COMPARISON.md` - Comparison of all methods
-- `QUALITY_ISSUES.md` - FastPitch quality analysis
+### Documentation
+- `VOICE_CLONING.md`: initial voice cloning guide
+- `VOICE_CLONING_COMPARISON.md`: comparison of all methods
+- `QUALITY_ISSUES.md`: FastPitch quality analysis
 
-### **Embeddings**
-- `custom_voice.pt` - Resemblyzer (256D)
-- `custom_voice_384d.pt` - Neural projection (384D)
-- `custom_voice_nemo.pt` - TitaNet (192D)
-- `speaker_embedding.pt` - Various experiments
+### Embeddings
+- `custom_voice.pt`: Resemblyzer (256D)
+- `custom_voice_384d.pt`: neural projection (384D)
+- `custom_voice_nemo.pt`: TitaNet (192D)
+- `speaker_embedding.pt`: various experiments
 
-## Why These Are Experimental
+## Why these are experimental
 
-All these approaches tried to **replace** speaker embeddings, which doesn't work because:
-- FastPitch embeddings are learned parameters
-- External encoders use different embedding spaces
-- Dimension mismatches require padding/projection
-- Results don't match the target voice
+All these approaches replace speaker embeddings, which fails for four reasons:
+- FastPitch embeddings are learned parameters.
+- External encoders use different embedding spaces.
+- Dimension mismatches require padding or projection.
+- The output does not match the target voice.
 
-## The Correct Approach
+## The approach in the root directory
 
-See the root directory for the proper implementation:
-- `speaker_encoder.py` - Universal speaker encoder
-- `speaker_conditioning.py` - Proper global conditioning architecture
-- `custom_voice_tts.py` - Final TTS implementation
+- `speaker_encoder.py`: speaker encoder
+- `speaker_conditioning.py`: global conditioning layer
+- `custom_voice_tts.py`: TTS script
 
-The correct approach uses **projection + global conditioning** (adding to encoder output), not embedding replacement.
+It projects the embedding and adds it to the encoder output (global conditioning) instead of replacing an embedding.
