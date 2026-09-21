@@ -118,7 +118,6 @@
     <script>
         const API_BASE = '';
         
-        // Load available models
         async function loadModels() {
             try {
                 const response = await fetch(`${API_BASE}/api/models`);
@@ -140,7 +139,6 @@
             }
         }
 
-        // Synthesize speech
         async function synthesize() {
             const model = document.getElementById('model-select').value;
             const text = document.getElementById('text-input').value;
@@ -155,13 +153,11 @@
                 return;
             }
 
-            // Show loading state
             const btn = document.getElementById('synthesize-btn');
             btn.disabled = true;
             btn.querySelector('.btn-text').style.display = 'none';
             btn.querySelector('.btn-loader').style.display = 'inline-flex';
 
-            // Hide previous results/errors
             document.getElementById('results-section').style.display = 'none';
             document.getElementById('error-section').style.display = 'none';
 
@@ -177,17 +173,14 @@
                 const data = await response.json();
 
                 if (data.success) {
-                    // Show audio player
                     const audioPlayer = document.getElementById('audio-player');
                     audioPlayer.src = data.audio_url;
                     
-                    // Update metrics
                     document.getElementById('latency-value').textContent = data.latency_s.toFixed(3);
                     document.getElementById('duration-value').textContent = data.duration_s.toFixed(3);
                     document.getElementById('rtf-value').textContent = data.rtf.toFixed(3);
                     document.getElementById('samplerate-value').textContent = data.sample_rate;
 
-                    // Update resources
                     if (data.resources) {
                         document.getElementById('cpu-value').textContent = 
                             `${data.resources.cpu_percent.toFixed(1)}%`;
@@ -213,7 +206,6 @@
 
                     document.getElementById('results-section').style.display = 'block';
                 } else {
-                    // Show error
                     document.getElementById('error-message').textContent = data.error;
                     document.getElementById('error-section').style.display = 'block';
                 }
@@ -222,24 +214,20 @@
                     `Request failed: ${error.message}`;
                 document.getElementById('error-section').style.display = 'block';
             } finally {
-                // Reset button state
                 btn.disabled = false;
                 btn.querySelector('.btn-text').style.display = 'inline';
                 btn.querySelector('.btn-loader').style.display = 'none';
             }
         }
 
-        // Event listeners
         document.getElementById('synthesize-btn').addEventListener('click', synthesize);
         
-        // Allow Enter key in textarea with Ctrl/Cmd
         document.getElementById('text-input').addEventListener('keydown', (e) => {
             if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
                 synthesize();
             }
         });
 
-        // Load models on page load
         loadModels();
     </script>
 </body>
