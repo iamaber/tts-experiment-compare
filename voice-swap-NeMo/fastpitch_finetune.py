@@ -24,7 +24,6 @@ from nemo.utils import logging
 from nemo.utils.exp_manager import exp_manager
 
 
-# Quiet noisy dependency logs and SyntaxWarnings from pydub
 warnings.filterwarnings("ignore", category=SyntaxWarning, module="pydub.utils")
 for name in ("transformer_engine", "OneLogger", "nemo_logger"):
     py_logging.getLogger(name).setLevel(py_logging.ERROR)
@@ -49,4 +48,4 @@ def main(cfg):
 
 
 if __name__ == "__main__":
-    main()  # noqa pylint: disable=no-value-for-parameter
+    main()  # pylint: disable=no-value-for-parameter
