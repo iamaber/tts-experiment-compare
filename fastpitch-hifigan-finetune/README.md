@@ -1,40 +1,41 @@
-# FastPitch Voice Cloning with TitaNet
+# FastPitch voice cloning with TitaNet
 
-Multi-speaker TTS with proper speaker conditioning architecture.
+Multi-speaker TTS with a speaker conditioning layer.
 
-## 🎯 Quick Start
+## Quick start
 
-### 1. Extract Your Voice Embedding
+### 1. Extract your voice embedding
 
 ```bash
 uv run python speaker_encoder.py custom-voice/record.wav my_voice.pt titanet
 ```
 
-### 2. Generate Speech with Your Voice
+### 2. Generate speech with your voice
 
 ```bash
 uv run python custom_voice_tts.py my_voice.pt "Your text here" output.wav
 ```
 
-## 📁 Project Structure
+## Project structure
 
-### **Core Files**
-- `speaker_encoder.py` - Universal speaker encoder (TitaNet/Resemblyzer/ECAPA)
-- `speaker_conditioning.py` - Speaker conditioning architecture
-- `custom_voice_tts.py` - Custom voice TTS generator
-- `tts.py` - Multi-speaker TTS (12,800 pre-trained voices)
+### Core files
+- `speaker_encoder.py`: speaker encoder with TitaNet, Resemblyzer, and ECAPA backends
+- `speaker_adapter.py`: speaker adaptation layer and the hook that adds it to FastPitch's encoder output
+- `speaker_conditioning.py`: FastPitch + HiFi-GAN pipeline that uses the speaker adapter
+- `custom_voice_tts.py`: custom voice TTS generator
+- `tts.py`: multi-speaker TTS (12,800 pre-trained voices)
 
-### **Data**
-- `custom-voice/record.wav` - Your voice recording (155s)
-- `custom-voice/record.txt` - Transcript
-- `my_voice_titanet.pt` - Extracted voice embedding (192D)
+### Data
+- `custom-voice/record.wav`: your voice recording (155s)
+- `custom-voice/record.txt`: transcript
+- `my_voice_titanet.pt`: extracted voice embedding (192D)
 
-### **Experiments**
-- `experiments/` - Previous experimental approaches
+### Experiments
+- `experiments/`: earlier approaches
 
-## 🏗️ Architecture
+## Architecture
 
-### **Proper Speaker Conditioning**
+### Speaker conditioning
 
 ```
 Text → FastPitch Encoder → [Batch, Seq, 384]
@@ -46,58 +47,50 @@ Voice → TitaNet → [192D] → Projection → [384D] → Broadcast
                                             Duration/Pitch Predictors
 ```
 
-**Key Points:**
-- ✅ TitaNet extracts 192D speaker embedding
-- ✅ Projection layer maps to 384D (FastPitch hidden dim)
-- ✅ Global conditioning (add to encoder output)
-- ⚠️ Requires FastPitch forward pass modification for full implementation
+TitaNet extracts a 192D speaker embedding. A projection layer maps it to 384D, the FastPitch hidden dimension. The result is added to every position of the encoder output (global conditioning). A full implementation still requires changes to the FastPitch forward pass.
 
-## 🎤 Speaker Encoder Backends
+## Speaker encoder backends
 
-| Backend | Dimension | Quality | Speed | Use Case |
+| Backend | Dimension | Quality | Speed | Use case |
 |---------|-----------|---------|-------|----------|
-| **TitaNet** | 192D | ⭐⭐⭐⭐⭐ | Fast | Recommended (NeMo ecosystem) |
-| Resemblyzer | 256D | ⭐⭐⭐⭐ | Medium | Alternative |
-| ECAPA | 192D | ⭐⭐⭐⭐ | Fast | SpeechBrain users |
+| TitaNet | 192D | 5/5 | Fast | Recommended (NeMo) |
+| Resemblyzer | 256D | 4/5 | Medium | Alternative |
+| ECAPA | 192D | 4/5 | Fast | SpeechBrain users |
 
-## 📊 Current Status
+## Current status
 
-### **What Works:**
-- ✅ Speaker embedding extraction (TitaNet)
-- ✅ Projection layer (192D → 384D)
-- ✅ Global conditioning architecture
-- ✅ Architecture demonstration
+### Working
+- Speaker embedding extraction (TitaNet)
+- Projection layer (192D to 384D)
+- Global conditioning layer
+- Architecture demo
 
-### **Limitation:**
-- ⚠️ Doesn't modify FastPitch forward pass yet
-- ⚠️ Output uses default voice (not custom voice)
+### Limitations
+- The code does not modify the FastPitch forward pass yet.
+- Output uses the default voice, not the custom voice.
 
-### **For True Voice Cloning:**
-- Fine-tune FastPitch on your voice data, OR
-- Modify FastPitch forward pass to inject conditioned states
+### For real voice cloning
+- Fine-tune FastPitch on your voice data, or
+- Modify the FastPitch forward pass to inject the conditioned states.
 
-## 🔧 System Requirements
+## System requirements
 
 - Python 3.10+
 - NVIDIA GPU (CUDA)
 - NeMo 2.6.0+
 - PyTorch with CUDA support
 
-## 📚 Documentation
+## Documentation
 
-- `experiments/README.md` - Experimental approaches tried
-- See artifacts in `.gemini/antigravity/brain/` for detailed walkthroughs
+- `experiments/README.md`: approaches tried
+- `.gemini/antigravity/brain/`: detailed walkthroughs
 
-## 💡 Why TitaNet?
+## Why TitaNet
 
-- **Same ecosystem** - NVIDIA NeMo
-- **Optimized** - Designed for NeMo models
-- **High quality** - State-of-the-art speaker verification
-- **Compact** - 192D embeddings
-- **Fast** - GPU accelerated
+TitaNet is part of NVIDIA NeMo, the same toolkit as FastPitch. It is a speaker verification model that produces 192D embeddings and runs on the GPU.
 
-## 🚀 Next Steps
+## Next steps
 
-1. **Use existing voices** - Try speakers 0-12799 in `tts.py`
-2. **Fine-tune** - Train FastPitch on your voice (proper solution)
-3. **Modify FastPitch** - Inject conditioning into forward pass
+1. Use existing voices. Try speakers 0-12799 in `tts.py`.
+2. Fine-tune FastPitch on your voice.
+3. Modify FastPitch to inject conditioning into the forward pass.
