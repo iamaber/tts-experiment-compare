@@ -1,13 +1,12 @@
 const API_URL = 'http://localhost:8000';
+const CFG_COEF = 2.0;
 
-// State
 let selectedVoice = 'default';
 let audioContext = null;
 let currentAudio = null;
 let wordTimings = [];
 let isPlaying = false;
 
-// DOM Elements
 const voiceSelect = document.getElementById('voiceSelect');
 const voiceUpload = document.getElementById('voiceUpload');
 const generateBtn = document.getElementById('generateBtn');
@@ -23,7 +22,6 @@ const volumeSlider = document.getElementById('volumeSlider');
 const highlightText = document.getElementById('highlightText');
 const downloadLink = document.getElementById('downloadLink');
 
-// Metrics Elements
 const rtfValue = document.getElementById('rtfValue');
 const rtfStatus = document.getElementById('rtfStatus');
 const cpuValue = document.getElementById('cpuValue');
@@ -34,37 +32,35 @@ const gpuMemValue = document.getElementById('gpuMemValue');
 const gpuMemBar = document.getElementById('gpuMemBar');
 const genTimeValue = document.getElementById('genTimeValue');
 
-// Modal Elements
 const viewHistoryBtn = document.getElementById('viewHistoryBtn');
 const analysisModal = document.getElementById('analysisModal');
 const closeModalBtn = document.getElementById('closeModalBtn');
 const historyTable = document.getElementById('historyTable').querySelector('tbody');
 const exportBtn = document.getElementById('exportBtn');
 
-// Initialize Lucide Icons
 lucide.createIcons();
 
-// --- Init ---
 async function init() {
     await loadVoices();
     startSystemPolling();
 }
 
-// --- Voice Management ---
 async function loadVoices() {
     try {
         const response = await fetch(`${API_URL}/api/voices`);
         const voices = await response.json();
         
-        voiceSelect.innerHTML = ''; // Clear existing
+        voiceSelect.innerHTML = '';
         voices.forEach(voice => {
             const option = document.createElement('option');
             option.value = voice.id;
             option.textContent = `${voice.name} ${voice.is_custom ? '(Custom)' : ''}`;
             voiceSelect.appendChild(option);
         });
+        return voices;
     } catch (error) {
         console.error('Failed to load voices:', error);
+        return [];
     }
 }
 
@@ -78,7 +74,9 @@ voiceUpload.addEventListener('change', async (e) => {
 
     const formData = new FormData();
     formData.append('audio', file);
-    const name = file.name.replace(/\.[^/.]+$/, ""); // Remove extension
+    const name = file.name.replace(/\.[^/.]+$/, "");
+
+    const knownIds = new Set(Array.from(voiceSelect.options, option => option.value));
 
     try {
         const res = await fetch(`${API_URL}/api/clone-voice?name=${encodeURIComponent(name)}`, {
@@ -86,10 +84,9 @@ voiceUpload.addEventListener('change', async (e) => {
             body: formData
         });
         if (res.ok) {
-            await loadVoices();
-            // Select the new voice
-            const voices = await (await fetch(`${API_URL}/api/voices`)).json();
-            const newVoice = voices.find(v => v.name === name); // Simplified finding
+            const voices = await loadVoices();
+            const newVoice = voices.find(v => !knownIds.has(String(v.id)))
+                ?? voices.find(v => v.is_custom && v.name === name);
             if(newVoice) voiceSelect.value = newVoice.id;
             selectedVoice = newVoice ? newVoice.id : selectedVoice;
             alert('Voice uploaded successfully!');
@@ -99,12 +96,10 @@ voiceUpload.addEventListener('change', async (e) => {
     }
 });
 
-// --- Text Input ---
 textInput.addEventListener('input', (e) => {
     charCount.textContent = e.target.value.length;
 });
 
-// --- Generation ---
 generateBtn.addEventListener('click', async () => {
     const text = textInput.value.trim();
     if (!text) return;
@@ -118,7 +113,7 @@ generateBtn.addEventListener('click', async () => {
             body: JSON.stringify({ 
                 text, 
                 voice: selectedVoice,
-                cfg_coef: 2.0  // Voice conditioning strength (1.0-4.0, higher = stronger)
+                cfg_coef: CFG_COEF
             })
         });
 
@@ -147,28 +142,23 @@ function setLoading(isLoading) {
 }
 
 function handleGenerationSuccess(data) {
-    // Audio Setup
     currentAudio = new Audio(`${API_URL}${data.audio_url}`);
     audioPlayer.src = `${API_URL}${data.audio_url}`;
     audioSection.classList.remove('hidden');
     downloadLink.href = `${API_URL}${data.audio_url}`;
     downloadLink.download = `tts_${Date.now()}.wav`;
 
-    // Word Highlighting Setup
     wordTimings = data.word_timings;
     renderWordHighlighting(data.word_timings);
 
-    // Update Metrics
     updateMetrics(data.metrics);
-    updateHistoryTable(); // Refresh history
+    updateHistoryTable();
 
-    // Play Audio
     audioPlayer.play();
     isPlaying = true;
     updatePlayBtn();
 }
 
-// --- Audio Player & Highlighting ---
 function renderWordHighlighting(timings) {
     highlightText.innerHTML = '';
     timings.forEach((timing, index) => {
@@ -189,7 +179,6 @@ audioPlayer.addEventListener('timeupdate', () => {
     const current = audioPlayer.currentTime;
     const duration = audioPlayer.duration;
     
-    // Update progress bar
     const progress = (current / duration) * 100;
     progressBar.value = progress || 0;
     document.querySelector('.progress-fill').style.width = `${progress}%`;
@@ -197,7 +186,6 @@ audioPlayer.addEventListener('timeupdate', () => {
     currentTimeEl.textContent = formatTime(current);
     durationEl.textContent = formatTime(duration);
 
-    // Update Highlighting
     const words = highlightText.children;
     for (let word of words) {
         const start = parseFloat(word.dataset.start);
@@ -247,7 +235,6 @@ function formatTime(seconds) {
     return `${m}:${s.toString().padStart(2, '0')}`;
 }
 
-// --- Metrics & System Polling ---
 function updateMetrics(metrics) {
     rtfValue.textContent = `${metrics.rtf.toFixed(3)}x`;
     rtfStatus.textContent = metrics.rtf < 1 ? 'Faster than real-time' : 'Slower than real-time';
@@ -262,29 +249,25 @@ async function startSystemPolling() {
             const res = await fetch(`${API_URL}/api/system-info`);
             const info = await res.json();
             
-            // CPU
             cpuValue.textContent = `${info.cpu_percent.toFixed(1)}%`;
             cpuBar.style.width = `${info.cpu_percent}%`;
 
-            // GPU
             if (info.gpu_percent != null) {
                 gpuValue.textContent = `${info.gpu_percent.toFixed(1)}%`;
                 gpuBar.style.width = `${info.gpu_percent}%`;
             }
 
-            // GPU Memory
             if (info.gpu_memory_used != null) {
                 gpuMemValue.textContent = `${info.gpu_memory_used.toFixed(1)} / ${info.gpu_memory_total.toFixed(1)} GB`;
                 const memPercent = (info.gpu_memory_used / info.gpu_memory_total) * 100;
                 gpuMemBar.style.width = `${memPercent}%`;
             }
-        } catch (e) {
-            // Silently fail on connection loss
+        } catch (error) {
+            console.error('System polling failed:', error);
         }
     }, 1000);
 }
 
-// --- History Modal ---
 viewHistoryBtn.addEventListener('click', async () => {
     analysisModal.classList.remove('hidden');
     await updateHistoryTable();
@@ -313,5 +296,4 @@ async function updateHistoryTable() {
     });
 }
 
-// Init call
 init();
