@@ -24,51 +24,45 @@ defaults: []
 
 model:
   generator:
-    _target_: nemo.collections.tts.modules.hifigan.HiFiGANGenerator
-    resblock_type: "1"
-    num_gpus: 1
+    _target_: nemo.collections.tts.modules.hifigan_modules.Generator
+    resblock: 1
+    upsample_rates: [8, 8, 2, 2]
+    upsample_kernel_sizes: [16, 16, 4, 4]
+    upsample_initial_channel: 512
     resblock_kernel_sizes: [3, 7, 11]
     resblock_dilation_sizes: [[1, 3, 5], [1, 3, 5], [1, 3, 5]]
-    upsample_rates: [8, 8, 2, 2, 2]
-    upsample_kernel_sizes: [16, 16, 4, 4, 4]
-    upsample_initial_channel: 512
-    resblock_initial_kernel_size: 7
-    resblock_initial_dilation: 1
-    num_mels: ${n_mel_channels}
-
-  discriminator:
-    _target_: nemo.collections.tts.modules.hifigan.HiFiGANDiscriminator
+    initial_input_size: ${n_mel_channels}
 
   train_ds:
     dataset:
-      _target_: nemo.collections.tts.data.vocoder_dataset.VocoderDataset
-      filepaths: ???
+      _target_: precomputed_mel_dataset.PrecomputedMelVocoderDataset
+      manifest_filepath: ${train_dataset}
       sample_rate: ${sample_rate}
       n_segments: ${train_n_segments}
       max_duration: ${train_max_duration}
       min_duration: ${train_min_duration}
-      ignore_file: null
-      trim_silence: false
       load_precomputed_mel: true
-      mel_norm_file: null
+      hop_length: ${n_window_stride}
     dataloader_params:
+      drop_last: false
+      shuffle: true
       batch_size: 32
       num_workers: 4
       pin_memory: true
 
   validation_ds:
     dataset:
-      _target_: nemo.collections.tts.data.vocoder_dataset.VocoderDataset
-      filepaths: ???
+      _target_: precomputed_mel_dataset.PrecomputedMelVocoderDataset
+      manifest_filepath: ${validation_datasets}
       sample_rate: ${sample_rate}
       n_segments: ${val_n_segments}
       max_duration: ${val_max_duration}
       min_duration: ${val_min_duration}
-      ignore_file: null
-      trim_silence: false
       load_precomputed_mel: true
-      mel_norm_file: null
+      hop_length: ${n_window_stride}
     dataloader_params:
+      drop_last: false
+      shuffle: false
       batch_size: 32
       num_workers: 4
       pin_memory: true
