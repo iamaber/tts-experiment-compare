@@ -1,31 +1,31 @@
-# TTS Model Comparison
+# TTS model comparison
 
-A comprehensive benchmarking and testing suite for NVIDIA NeMo TTS models including FastPitch, HiFi-GAN, and VITS.
+Benchmark and test scripts for NVIDIA NeMo TTS models: FastPitch, HiFi-GAN, and VITS.
 
 ## Features
 
-### CLI Scripts
-- **Individual Model Scripts**: Standalone performance testing for each TTS model
-- **Unified Benchmark**: Run all models together with `main.py`
-- **Performance Metrics**: Latency, duration, RTF (Real-Time Factor) measurements
+### CLI scripts
+- One standalone performance test script per TTS model
+- `main.py` runs all models together
+- Each run reports latency, duration, and RTF (real-time factor)
 
-### Web Application
-- **Interactive UI**: Browser-based interface for testing TTS models
-- **Model Selection**: Choose between FastPitch+HiFi-GAN, E2E, or VITS
-- **Real-time Synthesis**: Generate speech with performance tracking
-- **Resource Monitoring**: CPU, memory, and GPU usage analysis
-- **Audio Playback**: Instant preview of generated audio
+### Web application
+- Browser UI for testing TTS models
+- Choose FastPitch+HiFi-GAN or VITS
+- Generates speech and reports performance metrics
+- Reports CPU, memory, and GPU usage
+- Plays the generated audio in the browser
 
 ## Setup
 
-1) Create and activate a virtual env with uv (fast and self-contained):
+1) Create and activate a virtual env with uv:
 
 ```bash
 uv venv .venv
 source .venv/bin/activate
 ```
 
-2) Install deps (pulls NeMo + Torch + FastAPI):
+2) Install dependencies (NeMo, Torch, FastAPI):
 
 ```bash
 uv pip install -e .
@@ -33,7 +33,7 @@ uv pip install -e .
 
 ## Usage
 
-### Web Application (Recommended)
+### Web application (recommended)
 
 Start the FastAPI server:
 
@@ -48,56 +48,48 @@ Open your browser to http://localhost:8000 and:
 4. View performance metrics and resource usage
 5. Play the generated audio
 
-### CLI Scripts
+### CLI scripts
 
-#### Run All Models
+#### Run all models
 ```bash
 uv run python main.py
 ```
 
-#### Individual Models
+#### Individual models
 ```bash
 # FastPitch + HiFi-GAN (two-stage)
 uv run python fastpitch+HiFi-GAN.py
-
-# FastPitch + HiFi-GAN (end-to-end)
-uv run python "fastpitch+HiFi-GAN(E2E).py"
 
 # VITS
 uv run python vits+hifigan.py
 ```
 
-Outputs land in `outputs/` with latency, duration, and real-time factor printed for each model.
+Each script writes audio to `outputs/` and prints latency, duration, and real-time factor.
 
 ## Models
 
-### FastPitch + HiFi-GAN (Two-Stage)
-- **FastPitch**: Mel-spectrogram generator
-- **HiFi-GAN**: Neural vocoder
+### FastPitch + HiFi-GAN (two-stage)
+- FastPitch generates the mel spectrogram.
+- HiFi-GAN is the neural vocoder.
 - Pretrained: `tts_en_fastpitch` + `tts_en_lj_hifigan_ft_mixertts`
-
-### FastPitch + HiFi-GAN (E2E)
-- End-to-end synthesis with fallback wrapper
-- Faster inference with combined model
-- Uses same pretrained models as two-stage
 
 ### VITS
 - End-to-end TTS with variational inference
 - Pretrained: `tts_en_lj_vits`
-- Single model for both spectrogram and waveform generation
+- One model generates both the spectrogram and the waveform
 
-## Performance Metrics
+## Performance metrics
 
 All scripts measure:
-- **Latency**: Time to generate audio (seconds)
-- **Duration**: Length of generated audio (seconds)
-- **RTF**: Real-Time Factor (latency / duration)
-- **Sample Rate**: Audio sample rate (Hz)
+- Latency: time to generate audio (seconds)
+- Duration: length of generated audio (seconds)
+- RTF: real-time factor (latency / duration)
+- Sample rate: audio sample rate (Hz)
 
-Web app additionally tracks:
-- **CPU Usage**: Percentage during synthesis
-- **Memory**: RAM usage in MB
-- **GPU Memory**: VRAM usage in MB (if available)
+The web app also tracks:
+- CPU usage during synthesis (percent)
+- RAM usage (MB)
+- VRAM usage (MB, if available)
 
 ## Dependencies
 
@@ -110,12 +102,12 @@ Web app additionally tracks:
 
 ## Troubleshooting
 
-### ml_dtypes Import Error
-The project includes compatibility aliases for `ml_dtypes` to prevent ONNX import errors. These are defined before NeMo imports in all scripts.
+### ml_dtypes import error
+`pyproject.toml` pins `onnx<1.18`. Newer onnx releases reference `ml_dtypes.float4_e2m1fn`, which the pinned `ml-dtypes<0.5` lacks, so importing NeMo fails.
 
-### CUDA/GPU Issues
-Models automatically fall back to CPU if CUDA is unavailable. For best performance, use a CUDA-enabled GPU.
+### CUDA/GPU issues
+Models fall back to CPU if CUDA is unavailable. A CUDA GPU is faster.
 
-### Model Download
-On first run, NeMo will download pretrained models (~500MB-1GB each). This may take several minutes depending on your connection.
+### Model download
+On first run, NeMo downloads pretrained models (~500MB-1GB each). This can take several minutes.
 
