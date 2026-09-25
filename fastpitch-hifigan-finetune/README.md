@@ -47,7 +47,7 @@ Voice → TitaNet → [192D] → Projection → [384D] → Broadcast
                                             Duration/Pitch Predictors
 ```
 
-TitaNet extracts a 192D speaker embedding. A projection layer maps it to 384D, the FastPitch hidden dimension. The result is added to every position of the encoder output (global conditioning). A full implementation still requires changes to the FastPitch forward pass.
+TitaNet extracts a 192D speaker embedding. A projection layer maps it to 384D, the FastPitch hidden dimension. A forward hook on the FastPitch encoder adds the result to every position of the encoder output (global conditioning), so the duration and pitch predictors see it.
 
 ## Speaker encoder backends
 
@@ -66,12 +66,11 @@ TitaNet extracts a 192D speaker embedding. A projection layer maps it to 384D, t
 - Architecture demo
 
 ### Limitations
-- The code does not modify the FastPitch forward pass yet.
-- Output uses the default voice, not the custom voice.
+- The speaker adapter is untrained, so output does not match the reference voice yet.
 
 ### For real voice cloning
-- Fine-tune FastPitch on your voice data, or
-- Modify the FastPitch forward pass to inject the conditioned states.
+- Fine-tune FastPitch on your voice data (see `voice-swap-NeMo`), or
+- Train the speaker adapter on multi-speaker data.
 
 ## System requirements
 
@@ -83,7 +82,6 @@ TitaNet extracts a 192D speaker embedding. A projection layer maps it to 384D, t
 ## Documentation
 
 - `experiments/README.md`: approaches tried
-- `.gemini/antigravity/brain/`: detailed walkthroughs
 
 ## Why TitaNet
 
@@ -93,4 +91,4 @@ TitaNet is part of NVIDIA NeMo, the same toolkit as FastPitch. It is a speaker v
 
 1. Use existing voices. Try speakers 0-12799 in `tts.py`.
 2. Fine-tune FastPitch on your voice.
-3. Modify FastPitch to inject conditioning into the forward pass.
+3. Train the speaker adapter.
