@@ -5,7 +5,7 @@ env/
 
 
 # Byte-code files
-*.pyc
+*.py[cod]
 __pycache__/
 
 # Datasets and data
@@ -25,3 +25,15 @@ tts_dataset_
 
 # Large local models (not tracked in git)
 tts-test-kayutai/models/dsm_tts_1e68beda@240.safetensors
+
+# Generated audio and training runs
+outputs/
+voice-swap-NeMo/hifigan_ft/
+voice-swap-NeMo/ljspeech_to_9017_no_mixing_5_mins/
+fastpitch-hifigan-finetune/**/output*.wav
+fastpitch-hifigan-finetune/**/output*.mp3
+fastpitch-hifigan-finetune/**/custom_output.wav
+fastpitch-hifigan-finetune/**/custom_voice_output.wav
+fastpitch-hifigan-finetune/**/extracted_embedding.pt
+fastpitch-hifigan-finetune/test.wav
+fastpitch-hifigan-finetune/final_custom_voice.wav
