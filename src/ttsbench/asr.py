@@ -1,11 +1,12 @@
 import unicodedata
+from collections.abc import Callable
 from functools import cache
 
 import jiwer
 import numpy as np
 from scipy.signal import resample_poly
 
-from ttsbench.core import Audio, Language, torch_device
+from ttsbench.core import METRIC, Audio, Language, Metric, torch_device
 
 ASR_MODELS: dict[Language, str] = {
     "en": "nvidia/parakeet-tdt-0.6b-v2",
@@ -14,15 +15,23 @@ ASR_MODELS: dict[Language, str] = {
 ASR_RATE = 16_000
 
 
+def cer_ignoring_spaces(reference: str, hypothesis: str) -> float:
+    return jiwer.cer(reference.replace(" ", ""), hypothesis.replace(" ", ""))
+
+
+SCORERS: dict[Metric, Callable[[str, str], float]] = {
+    "WER": jiwer.wer,
+    "CER": cer_ignoring_spaces,
+}
+
+
 def normalize(text: str) -> str:
     kept = (" " if unicodedata.category(c).startswith("P") else c for c in text.lower())
     return " ".join("".join(kept).split())
 
 
 def error_rate(reference: str, hypothesis: str, language: Language) -> float:
-    """WER for English, CER for Bangla, where spelling variants make word-level scores noisy."""
-    ref, hyp = normalize(reference), normalize(hypothesis)
-    return jiwer.wer(ref, hyp) if language == "en" else jiwer.cer(ref, hyp)
+    return SCORERS[METRIC[language]](normalize(reference), normalize(hypothesis))
 
 
 @cache

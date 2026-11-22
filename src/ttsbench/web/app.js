@@ -63,15 +63,14 @@ function selectTab(name) {
 
 function renderTryModels() {
   const language = $("try-language").value;
+  const models = modelsFor(language);
   const previous = $("try-model").value;
   $("try-model").replaceChildren(
-    ...modelsFor(language).map((m) =>
-      option(m.id, m.available ? m.name : `${m.name} (not installed)`, !m.available),
-    ),
+    ...models.map((m) => option(m.id, m.available ? m.name : `${m.name} (not installed)`, !m.available)),
   );
-  const keep = modelsFor(language).find((m) => m.id === previous && m.available);
-  const first = modelsFor(language).find((m) => m.available);
-  if (keep || first) $("try-model").value = (keep || first).id;
+  const selected =
+    models.find((m) => m.id === previous && m.available) ?? models.find((m) => m.available);
+  if (selected) $("try-model").value = selected.id;
   renderTryVoices();
 }
 
@@ -84,9 +83,10 @@ function renderTryVoices() {
     $("try-run").disabled = true;
     return;
   }
+  const voices = voicesFor(model, language);
   const previousVoice = $("try-voice").value;
-  $("try-voice").replaceChildren(...voicesFor(model, language).map((v) => option(v.id, v.name)));
-  if (voicesFor(model, language).some((v) => v.id === previousVoice)) $("try-voice").value = previousVoice;
+  $("try-voice").replaceChildren(...voices.map((v) => option(v.id, v.name)));
+  if (voices.some((v) => v.id === previousVoice)) $("try-voice").value = previousVoice;
   $("try-speed").disabled = !model.speed_control;
   const notes = [model.description, `License: ${model.license}.`];
   if (!model.speed_control) notes.push("This model has no speed control.");
@@ -119,7 +119,7 @@ async function runTry() {
       ["Real-time factor", result.rtf.toFixed(3)],
       ["Sample rate", `${result.sampleRate} Hz`],
     ];
-    if (result.cold) metrics.push(["Note", "First request for this voice, so latency includes loading the weights"]);
+    if (result.cold) metrics.push(["Note", "Cold start, so latency includes loading the model"]);
     $("try-metrics").replaceChildren(
       ...metrics.flatMap(([term, value]) => {
         const dt = document.createElement("dt");
@@ -208,18 +208,18 @@ async function loadBenchmark() {
   $("benchmark-table").querySelector("tbody").replaceChildren(
     ...rows.map((r) => {
       const tr = document.createElement("tr");
-      const metric = r.language === "en" ? "WER" : "CER";
       const values = r.error
-        ? [names[r.model], "", "", `failed: ${r.error}`, "", "", "", ""]
+        ? [names[r.model], "", "", `failed: ${r.error}`, "", "", "", "", ""]
         : [
             names[r.model],
             state.languages[r.language]?.name ?? r.language,
             r.voice,
             r.first_call_s.toFixed(2),
             r.latency_median_s.toFixed(3),
+            `${r.latency_min_s.toFixed(3)} to ${r.latency_max_s.toFixed(3)}`,
             r.rtf.toFixed(3),
             r.peak_rss_mb.toFixed(0),
-            r.error_rate == null ? "not scored" : `${(r.error_rate * 100).toFixed(1)}% ${metric}`,
+            r.error_rate == null ? "not scored" : `${(r.error_rate * 100).toFixed(1)}% ${r.metric}`,
           ];
       tr.replaceChildren(
         ...values.map((v) => {
@@ -233,10 +233,6 @@ async function loadBenchmark() {
   );
 }
 
-async function refreshModels() {
-  state.models = await (await fetch("/api/models")).json();
-}
-
 async function refreshSystem() {
   const info = await (await fetch("/api/system")).json();
   const loaded = info.loaded_models.length ? info.loaded_models.join(", ") : "none";
@@ -246,15 +242,23 @@ async function refreshSystem() {
 }
 
 async function init() {
-  const [languages] = await Promise.all([(await fetch("/api/languages")).json(), refreshModels()]);
+  const [languages, models] = await Promise.all([
+    fetch("/api/languages").then((response) => response.json()),
+    fetch("/api/models").then((response) => response.json()),
+  ]);
   state.languages = languages;
+  state.models = models;
   for (const prefix of ["try", "compare"]) {
     fillLanguages($(`${prefix}-language`));
     bindSpeed($(`${prefix}-speed`), $(`${prefix}-speed-value`));
     $(`${prefix}-text`).value = languages[$(`${prefix}-language`).value].sample;
     $(`${prefix}-language`).addEventListener("change", (event) => {
       $(`${prefix}-text`).value = languages[event.target.value].sample;
-      prefix === "try" ? renderTryModels() : renderCompareModels();
+      if (prefix === "try") {
+        renderTryModels();
+      } else {
+        renderCompareModels();
+      }
     });
   }
   document.querySelectorAll("[role=tab]").forEach((tab) => {

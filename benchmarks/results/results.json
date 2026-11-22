@@ -3,18 +3,20 @@
     "model": "piper",
     "language": "en",
     "voice": "en_US-lessac-medium",
-    "first_call_s": 0.8997787080006674,
-    "latency_median_s": 0.0694700829917565,
-    "latency_min_s": 0.05511699995258823,
-    "latency_max_s": 0.09071374998893589,
-    "rtf": 0.017464498207235522,
-    "audio_s": 20.499349962207106,
+    "metric": "WER",
+    "first_call_s": 0.932417458971031,
+    "latency_median_s": 0.06576129200402647,
+    "latency_min_s": 0.06014849996427074,
+    "latency_max_s": 0.08874462498351932,
+    "rtf": 0.017509589710162723,
+    "peak_rss_mb": 572.653568,
+    "rounds": 3,
     "runs": 15,
     "clips": [
       {
-        "text": "The quick brown fox jumps over the lazy dog near the riverbank.",
+        "text": "The quick brown fox jumps over the lazy dog near the old river.",
         "path": "benchmarks/audio/piper/en/0.wav",
-        "transcript": "The quick brown fox jumps over the lazy dog near the riverbank.",
+        "transcript": "The quick brown fox jumps over the lazy dog near the old river.",
         "error_rate": 0.0
       },
       {
@@ -30,10 +32,10 @@
         "error_rate": 0.0
       },
       {
-        "text": "The meeting has been moved to Thursday afternoon because the manager is traveling.",
+        "text": "The meeting has been moved to Thursday afternoon because the manager is away.",
         "path": "benchmarks/audio/piper/en/3.wav",
-        "transcript": "The meeting has been moved to Thursday afternoon, because the manager is travelling.",
-        "error_rate": 0.07692307692307693
+        "transcript": "The meeting has been moved to Thursday afternoon because the manager is away.",
+        "error_rate": 0.0
       },
       {
         "text": "Our new library opens next week with a large collection of science books.",
@@ -42,26 +44,27 @@
         "error_rate": 0.0
       }
     ],
-    "peak_rss_mb": 601.915392,
-    "error_rate": 0.015384615384615385
+    "error_rate": 0.0
   },
   {
     "model": "piper",
     "language": "bn",
     "voice": "bn_BD-google-medium",
-    "first_call_s": 0.7385024160030298,
-    "latency_median_s": 0.04806374997133389,
-    "latency_min_s": 0.0435846250038594,
-    "latency_max_s": 0.06424458301626146,
-    "rtf": 0.01693598091511329,
-    "audio_s": 15.472229780801205,
+    "metric": "CER",
+    "first_call_s": 0.7338779999990948,
+    "latency_median_s": 0.0509032909758389,
+    "latency_min_s": 0.04466000001411885,
+    "latency_max_s": 0.06468812498496845,
+    "rtf": 0.01699276123593424,
+    "peak_rss_mb": 572.653568,
+    "rounds": 3,
     "runs": 15,
     "clips": [
       {
         "text": "আমার সোনার বাংলা, আমি তোমায় ভালোবাসি।",
         "path": "benchmarks/audio/piper/bn/0.wav",
         "transcript": "আমার সোনার বাংলা আমি তোমায় ভালবাসি",
-        "error_rate": 0.027777777777777776
+        "error_rate": 0.03225806451612903
       },
       {
         "text": "আজ আকাশ মেঘলা, তাই বিকেলে বৃষ্টি হতে পারে।",
@@ -72,8 +75,8 @@
       {
         "text": "আমরা প্রতিদিন সকালে নদীর ধারে হাঁটতে যাই।",
         "path": "benchmarks/audio/piper/bn/2.wav",
-        "transcript": "আমরা প্রতিদিন সকালে নদীর ধারে হাঁটতে যাই",
-        "error_rate": 0.0
+        "transcript": "আমরা প্রতিদিন সকালে নদীর ধারে হাঁটতে চাই",
+        "error_rate": 0.029411764705882353
       },
       {
         "text": "বইমেলায় অনেক নতুন বই প্রকাশিত হয়েছে।",
@@ -84,29 +87,30 @@
       {
         "text": "দয়া করে দরজাটা বন্ধ করে দিন, বাইরে খুব ঠান্ডা।",
         "path": "benchmarks/audio/piper/bn/4.wav",
-        "transcript": "দ করে দরজাটা বনধ করে দিন বাইরে খুব ঠাণ্ডা",
-        "error_rate": 0.1111111111111111
+        "transcript": "করে দরজাটা বন্ধ করে দিন বাইরে খুব ঠাণ্ডা",
+        "error_rate": 0.13513513513513514
       }
     ],
-    "peak_rss_mb": 601.915392,
-    "error_rate": 0.027777777777777776
+    "error_rate": 0.03936099287142931
   },
   {
     "model": "kokoro",
     "language": "en",
     "voice": "af_heart",
-    "first_call_s": 1.5272054160013795,
-    "latency_median_s": 0.8555986250285059,
-    "latency_min_s": 0.7205589580116794,
-    "latency_max_s": 1.0430808749515563,
-    "rtf": 0.20034290243037284,
-    "audio_s": 21.20533333333333,
+    "metric": "WER",
+    "first_call_s": 1.5716486250166781,
+    "latency_median_s": 0.8453470410313457,
+    "latency_min_s": 0.7174888750305399,
+    "latency_max_s": 1.018794292001985,
+    "rtf": 0.19953067497557225,
+    "peak_rss_mb": 741.031936,
+    "rounds": 3,
     "runs": 15,
     "clips": [
       {
-        "text": "The quick brown fox jumps over the lazy dog near the riverbank.",
+        "text": "The quick brown fox jumps over the lazy dog near the old river.",
         "path": "benchmarks/audio/kokoro/en/0.wav",
-        "transcript": "The quick brown fox jumps over the lazy dog near the riverbank.",
+        "transcript": "The quick brown fox jumps over the lazy dog near the old river.",
         "error_rate": 0.0
       },
       {
@@ -122,9 +126,9 @@
         "error_rate": 0.0
       },
       {
-        "text": "The meeting has been moved to Thursday afternoon because the manager is traveling.",
+        "text": "The meeting has been moved to Thursday afternoon because the manager is away.",
         "path": "benchmarks/audio/kokoro/en/3.wav",
-        "transcript": "The meeting has been moved to Thursday afternoon because the manager is traveling.",
+        "transcript": "The meeting has been moved to Thursday afternoon because the manager is away.",
         "error_rate": 0.0
       },
       {
@@ -134,26 +138,27 @@
         "error_rate": 0.0
       }
     ],
-    "peak_rss_mb": 746.86464,
     "error_rate": 0.0
   },
   {
     "model": "mms",
     "language": "en",
     "voice": "eng",
-    "first_call_s": 4.118939250009134,
-    "latency_median_s": 0.4085696249967441,
-    "latency_min_s": 0.3432455839938484,
-    "latency_max_s": 0.4974322920315899,
-    "rtf": 0.08043830018731778,
-    "audio_s": 26.26133333333333,
+    "metric": "WER",
+    "first_call_s": 3.7140428340644576,
+    "latency_median_s": 0.39920887496555224,
+    "latency_min_s": 0.3444664159906097,
+    "latency_max_s": 0.49170579202473164,
+    "rtf": 0.08045293025286872,
+    "peak_rss_mb": 1685.733376,
+    "rounds": 3,
     "runs": 15,
     "clips": [
       {
-        "text": "The quick brown fox jumps over the lazy dog near the riverbank.",
+        "text": "The quick brown fox jumps over the lazy dog near the old river.",
         "path": "benchmarks/audio/mms/en/0.wav",
-        "transcript": "The quick brown fox jumps over the lazy dog near the river bank,",
-        "error_rate": 0.16666666666666666
+        "transcript": "The quick brown fox jumps over the lazy dart near the old river.",
+        "error_rate": 0.07692307692307693
       },
       {
         "text": "Please call Stella and ask her to bring these things with her from the store.",
@@ -168,9 +173,9 @@
         "error_rate": 0.07142857142857142
       },
       {
-        "text": "The meeting has been moved to Thursday afternoon because the manager is traveling.",
+        "text": "The meeting has been moved to Thursday afternoon because the manager is away.",
         "path": "benchmarks/audio/mms/en/3.wav",
-        "transcript": "The meeting has been moved to Thursday afternoon because the manager is traveling.",
+        "transcript": "The meeting has been moved to Thursday afternoon because the manager is away.",
         "error_rate": 0.0
       },
       {
@@ -180,72 +185,74 @@
         "error_rate": 0.07692307692307693
       }
     ],
-    "peak_rss_mb": 1959.460864,
-    "error_rate": 0.063003663003663
+    "error_rate": 0.045054945054945054
   },
   {
     "model": "mms",
     "language": "bn",
     "voice": "ben",
-    "first_call_s": 2.0017333750147372,
-    "latency_median_s": 0.3057310830336064,
-    "latency_min_s": 0.26832479203585535,
-    "latency_max_s": 0.4691752499784343,
-    "rtf": 0.0817872140578062,
-    "audio_s": 19.994666666666667,
+    "metric": "CER",
+    "first_call_s": 1.9097369579831138,
+    "latency_median_s": 0.299904334009625,
+    "latency_min_s": 0.269341999955941,
+    "latency_max_s": 0.45979287498630583,
+    "rtf": 0.08259894852395142,
+    "peak_rss_mb": 1685.733376,
+    "rounds": 3,
     "runs": 15,
     "clips": [
       {
         "text": "আমার সোনার বাংলা, আমি তোমায় ভালোবাসি।",
         "path": "benchmarks/audio/mms/bn/0.wav",
         "transcript": "আমার সোনার বামরা আমি তোমায় ভালবাসি",
-        "error_rate": 0.08333333333333333
+        "error_rate": 0.0967741935483871
       },
       {
         "text": "আজ আকাশ মেঘলা, তাই বিকেলে বৃষ্টি হতে পারে।",
         "path": "benchmarks/audio/mms/bn/1.wav",
-        "transcript": "আজ আকাশ মেঘলাা তাই বিকেলে বৃষ্টি হতে পারে",
-        "error_rate": 0.025
+        "transcript": "আজ আকাশ নেই যা তাই বিকেলে বৃষ্টি হতে পারে",
+        "error_rate": 0.09090909090909091
       },
       {
         "text": "আমরা প্রতিদিন সকালে নদীর ধারে হাঁটতে যাই।",
         "path": "benchmarks/audio/mms/bn/2.wav",
-        "transcript": "আমরা প্রতি দিন সকালে নদীর ধারে হাঁটতে যাই",
-        "error_rate": 0.025
+        "transcript": "আমরা প্রতি দিন সকালে নদীর ধারে হাঁটতে চাই",
+        "error_rate": 0.029411764705882353
       },
       {
         "text": "বইমেলায় অনেক নতুন বই প্রকাশিত হয়েছে।",
         "path": "benchmarks/audio/mms/bn/3.wav",
-        "transcript": "বীণএ রায় অনেক নতুন বই প্রকাশিত হয়েছে",
-        "error_rate": 0.13513513513513514
+        "transcript": "পিনেরায় অনেক নতুন বই প্রকাশিত হয়েছে",
+        "error_rate": 0.125
       },
       {
         "text": "দয়া করে দরজাটা বন্ধ করে দিন, বাইরে খুব ঠান্ডা।",
         "path": "benchmarks/audio/mms/bn/4.wav",
-        "transcript": "দয়া করে দরজাটা বনধ করে দিন বাইরে খুব ঠাণ্ডা",
-        "error_rate": 0.044444444444444446
+        "transcript": "দয়া করে দরজাটা বনধ করে দিন বাইলে খুব ঠাণ্ডা",
+        "error_rate": 0.08108108108108109
       }
     ],
-    "peak_rss_mb": 1959.460864,
-    "error_rate": 0.06258258258258259
+    "error_rate": 0.08463522604888829
   },
   {
     "model": "nemo-fastpitch",
     "language": "en",
     "voice": "ljspeech",
-    "first_call_s": 5.938688291993458,
-    "latency_median_s": 0.5004041249630973,
-    "latency_min_s": 0.4042330419761129,
-    "latency_max_s": 0.5772712920443155,
-    "rtf": 0.10362268093136787,
-    "audio_s": 23.61469387755102,
+    "metric": "WER",
+    "first_call_s": 5.6251577499788254,
+    "latency_median_s": 0.495452374976594,
+    "latency_min_s": 0.43631550000282004,
+    "latency_max_s": 0.5735240000067279,
+    "rtf": 0.10594321967174648,
+    "peak_rss_mb": 2778.529792,
+    "rounds": 3,
     "runs": 15,
     "clips": [
       {
-        "text": "The quick brown fox jumps over the lazy dog near the riverbank.",
+        "text": "The quick brown fox jumps over the lazy dog near the old river.",
         "path": "benchmarks/audio/nemo-fastpitch/en/0.wav",
-        "transcript": "The quick brown fox jumps over the lazy dog near the river bank.",
-        "error_rate": 0.16666666666666666
+        "transcript": "The quick brown fox jumps over the lazy dog near the old river.",
+        "error_rate": 0.0
       },
       {
         "text": "Please call Stella and ask her to bring these things with her from the store.",
@@ -260,9 +267,9 @@
         "error_rate": 0.0
       },
       {
-        "text": "The meeting has been moved to Thursday afternoon because the manager is traveling.",
+        "text": "The meeting has been moved to Thursday afternoon because the manager is away.",
         "path": "benchmarks/audio/nemo-fastpitch/en/3.wav",
-        "transcript": "The meeting has been moved to Thursday afternoon because the manager is traveling.",
+        "transcript": "The meeting has been moved to Thursday afternoon because the manager is away.",
         "error_rate": 0.0
       },
       {
@@ -272,32 +279,33 @@
         "error_rate": 0.0
       }
     ],
-    "peak_rss_mb": 2739.4048,
-    "error_rate": 0.03333333333333333
+    "error_rate": 0.0
   },
   {
     "model": "nemo-vits",
     "language": "en",
     "voice": "ljspeech",
-    "first_call_s": 4.295368749997579,
-    "latency_median_s": 0.5532649169908836,
-    "latency_min_s": 0.46421841700794175,
-    "latency_max_s": 0.6539830410038121,
-    "rtf": 0.10802613879327659,
-    "audio_s": 26.060529100529106,
+    "metric": "WER",
+    "first_call_s": 4.34285379195353,
+    "latency_median_s": 0.5079677920439281,
+    "latency_min_s": 0.4559990420239046,
+    "latency_max_s": 0.6744537079939619,
+    "rtf": 0.10764249806671547,
+    "peak_rss_mb": 3100.557312,
+    "rounds": 3,
     "runs": 15,
     "clips": [
       {
-        "text": "The quick brown fox jumps over the lazy dog near the riverbank.",
+        "text": "The quick brown fox jumps over the lazy dog near the old river.",
         "path": "benchmarks/audio/nemo-vits/en/0.wav",
-        "transcript": "The quick brown fox jumps over the lazy dog near the river bank.",
-        "error_rate": 0.16666666666666666
+        "transcript": "The quick brown fox jumps over the lazy dog near the old river.",
+        "error_rate": 0.0
       },
       {
         "text": "Please call Stella and ask her to bring these things with her from the store.",
         "path": "benchmarks/audio/nemo-vits/en/1.wav",
-        "transcript": "Please call Stella and ask her to bring these things with her from the store.",
-        "error_rate": 0.0
+        "transcript": "Please call Stalet and ask her to bring these things with her from the store.",
+        "error_rate": 0.06666666666666667
       },
       {
         "text": "Text to speech systems turn written words into natural sounding audio in real time.",
@@ -306,10 +314,10 @@
         "error_rate": 0.0
       },
       {
-        "text": "The meeting has been moved to Thursday afternoon because the manager is traveling.",
+        "text": "The meeting has been moved to Thursday afternoon because the manager is away.",
         "path": "benchmarks/audio/nemo-vits/en/3.wav",
-        "transcript": "The meeting has been moved to Thursday afternoon because a manager is traveling.",
-        "error_rate": 0.07692307692307693
+        "transcript": "The meeting has been moved to Thursday afternoon because the manager is away.",
+        "error_rate": 0.0
       },
       {
         "text": "Our new library opens next week with a large collection of science books.",
@@ -318,25 +326,26 @@
         "error_rate": 0.0
       }
     ],
-    "peak_rss_mb": 3844.390912,
-    "error_rate": 0.04871794871794872
+    "error_rate": 0.013333333333333332
   },
   {
     "model": "edge",
     "language": "en",
     "voice": "en-US-AriaNeural",
-    "first_call_s": 1.2813699579564855,
-    "latency_median_s": 1.1311652500298806,
-    "latency_min_s": 1.0106960420380346,
-    "latency_max_s": 1.3706117090187036,
-    "rtf": 0.2313156736584101,
-    "audio_s": 24.792,
+    "metric": "WER",
+    "first_call_s": 1.473893167974893,
+    "latency_median_s": 1.127888625022024,
+    "latency_min_s": 1.0320992919732817,
+    "latency_max_s": 1.481938332959544,
+    "rtf": 0.237990235432643,
+    "peak_rss_mb": 58.589184,
+    "rounds": 3,
     "runs": 15,
     "clips": [
       {
-        "text": "The quick brown fox jumps over the lazy dog near the riverbank.",
+        "text": "The quick brown fox jumps over the lazy dog near the old river.",
         "path": "benchmarks/audio/edge/en/0.wav",
-        "transcript": "The quick brown fox jumps over the lazy dog near the riverbank.",
+        "transcript": "The quick, brown fox jumps over the lazy dog near the old river.",
         "error_rate": 0.0
       },
       {
@@ -352,9 +361,9 @@
         "error_rate": 0.0
       },
       {
-        "text": "The meeting has been moved to Thursday afternoon because the manager is traveling.",
+        "text": "The meeting has been moved to Thursday afternoon because the manager is away.",
         "path": "benchmarks/audio/edge/en/3.wav",
-        "transcript": "The meeting has been moved to Thursday afternoon because the manager is traveling.",
+        "transcript": "The meeting has been moved to Thursday afternoon because the manager is away.",
         "error_rate": 0.0
       },
       {
@@ -364,19 +373,20 @@
         "error_rate": 0.0
       }
     ],
-    "peak_rss_mb": 59.490304,
     "error_rate": 0.0
   },
   {
     "model": "edge",
     "language": "bn",
     "voice": "bn-BD-NabanitaNeural",
-    "first_call_s": 1.016448791953735,
-    "latency_median_s": 1.0651767079834826,
-    "latency_min_s": 0.9527940420084633,
-    "latency_max_s": 1.1564852090086788,
-    "rtf": 0.3074495512576579,
-    "audio_s": 17.376,
+    "metric": "CER",
+    "first_call_s": 1.0697646660264581,
+    "latency_median_s": 1.1324910839903168,
+    "latency_min_s": 0.9854153330088593,
+    "latency_max_s": 1.431850166991353,
+    "rtf": 0.3260770155206121,
+    "peak_rss_mb": 58.589184,
+    "rounds": 3,
     "runs": 15,
     "clips": [
       {
@@ -389,7 +399,7 @@
         "text": "আজ আকাশ মেঘলা, তাই বিকেলে বৃষ্টি হতে পারে।",
         "path": "benchmarks/audio/edge/bn/1.wav",
         "transcript": "আজ আকাশমেঘলা তাই বিকেলে বৃষ্টি হতে পারে",
-        "error_rate": 0.025
+        "error_rate": 0.0
       },
       {
         "text": "আমরা প্রতিদিন সকালে নদীর ধারে হাঁটতে যাই।",
@@ -407,10 +417,9 @@
         "text": "দয়া করে দরজাটা বন্ধ করে দিন, বাইরে খুব ঠান্ডা।",
         "path": "benchmarks/audio/edge/bn/4.wav",
         "transcript": "দয়া করে দরজাটা বন্ধ করে দিন বাইরে খুব ঠাান্ডা",
-        "error_rate": 0.022222222222222223
+        "error_rate": 0.02702702702702703
       }
     ],
-    "peak_rss_mb": 59.490304,
-    "error_rate": 0.009444444444444445
+    "error_rate": 0.005405405405405406
   }
 ]
