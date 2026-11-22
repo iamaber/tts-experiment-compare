@@ -87,7 +87,50 @@ What the numbers say:
 - Edge TTS latency is a network round trip to Microsoft, so it depends on your connection, not your hardware.
 - ASR error measures intelligibility, not naturalness. A clear but robotic voice scores well.
 
-The same install, download, and benchmark also ran in a Linux aarch64 Docker container with 5 CPUs and 8 GB of RAM, with no failures. That run used the earlier test sentences. Local models ran 1.1 to 2.2 times slower than on the Mac, with Piper at RTF 0.028 and Kokoro at 0.229. The container's first `uv sync` downloaded more than 3.7 GB of packages. No GPU run has been done.
+The same install, download, and benchmark also ran in a Linux aarch64 Docker container with 5 CPUs and 8 GB of RAM, with no failures. That run used the earlier test sentences. Local models ran 1.1 to 2.2 times slower than on the Mac, with Piper at RTF 0.028 and Kokoro at 0.229. The container's first `uv sync` downloaded more than 3.7 GB of packages.
+
+## Run on a GPU
+
+[`docker/Dockerfile.gpu`](docker/Dockerfile.gpu) builds an x86_64 Linux image with every engine. PyTorch's CUDA libraries come with its wheels, so the host needs only an NVIDIA driver that supports CUDA 13.2 and the NVIDIA Container Toolkit. MMS-TTS, both NeMo models, and the ASR models run on the GPU. Piper and Kokoro use the CPU build of ONNX Runtime, so they stay on the CPU, and Edge TTS runs in Microsoft's cloud.
+
+To run the benchmark on [Modal](https://modal.com), log in with `uvx modal setup`, then run:
+
+```bash
+uvx modal run modal_app.py --gpu L4
+```
+
+[`modal_app.py`](modal_app.py) builds the image from the Dockerfile, attaches the GPU, 8 CPU cores, and 32 GB of RAM, and stops early if PyTorch cannot see the GPU. It downloads the models into the `ttsbench-cache` volume, which later runs reuse, and saves the results to `benchmarks/results/<gpu>/`. Pass `--gpu A10G` or `--gpu H100` for other GPUs, and `--models`, `--languages`, or `--rounds` to narrow the run, as in `--models mms,nemo-vits --rounds 1`.
+
+To run it on your own CUDA machine:
+
+```bash
+docker build -f docker/Dockerfile.gpu -t ttsbench-gpu .
+docker run --rm --gpus all -v ttsbench-cache:/cache -v "$PWD/benchmarks/results/gpu:/app/benchmarks/results" ttsbench-gpu
+```
+
+The container downloads the models into the `ttsbench-cache` Docker volume, then runs the benchmark. To serve the web UI instead, add `-p 8000:8000` and append `ttsbench-serve --host 0.0.0.0` to the `docker run` command.
+
+### Results on an NVIDIA L4
+
+One `uvx modal run modal_app.py --gpu L4` run, with PyTorch 2.15 on CUDA 13.2, 8 vCPUs, and the same 3 rounds as the Mac run. The full output is in [`benchmarks/results/l4/`](benchmarks/results/l4/).
+
+| Model | Language | First call (s) | Median latency (s) | RTF | Mac median latency (s) |
+|---|---|---|---|---|---|
+| Piper (CPU) | English | 1.33 | 0.115 | 0.029 | 0.066 |
+| Piper (CPU) | Bangla | 0.82 | 0.088 | 0.030 | 0.051 |
+| Kokoro 82M (CPU) | English | 2.55 | 1.033 | 0.250 | 0.845 |
+| MMS-TTS | English | 11.31 | 0.060 | 0.023 | 0.399 |
+| MMS-TTS | Bangla | 1.08 | 0.057 | 0.014 | 0.300 |
+| NeMo FastPitch + HiFi-GAN | English | 61.38 | 0.082 | 0.018 | 0.495 |
+| NeMo VITS | English | 56.71 | 0.107 | 0.029 | 0.508 |
+| Edge TTS (cloud) | English | 0.78 | 0.390 | 0.082 | 1.128 |
+| Edge TTS (cloud) | Bangla | 0.35 | 0.374 | 0.109 | 1.132 |
+
+- On the GPU, MMS-TTS and the NeMo models are 4.7 to 6.7 times faster than on the Mac CPU, and all three beat Piper's latency on the same machine.
+- Piper and Kokoro run on the container's CPU, which is slower than the M5, so a GPU machine does not help them.
+- First call for the NeMo models takes about a minute, against 6 seconds on the Mac. The run does not show why. Reading the weights from the Modal volume and starting CUDA are likely causes, but neither was measured.
+- An earlier L4 run, on Modal's default CPU allotment, gave 0.044 s for MMS-TTS English and 0.050 s for NeMo FastPitch. GPU latencies varied by up to about 60% between the two runs, which ran on different Modal hosts.
+- Edge TTS is faster from Modal than from the Mac, likely because Modal's data center has a shorter network path to Microsoft.
 
 ## Add a model
 

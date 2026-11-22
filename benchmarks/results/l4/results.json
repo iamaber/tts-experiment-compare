@@ -1,0 +1,425 @@
+[
+  {
+    "model": "piper",
+    "language": "en",
+    "voice": "en_US-lessac-medium",
+    "metric": "WER",
+    "first_call_s": 1.3288173569999913,
+    "latency_median_s": 0.11512360800000465,
+    "latency_min_s": 0.10719628700002204,
+    "latency_max_s": 0.14202502800000616,
+    "rtf": 0.02922860218049554,
+    "peak_rss_mb": 549.536,
+    "rounds": 3,
+    "runs": 15,
+    "clips": [
+      {
+        "text": "The quick brown fox jumps over the lazy dog near the old river.",
+        "path": "benchmarks/audio/piper/en/0.wav",
+        "transcript": "The quick brown fox jumps over the lazy dog near the old river.",
+        "error_rate": 0.0
+      },
+      {
+        "text": "Please call Stella and ask her to bring these things with her from the store.",
+        "path": "benchmarks/audio/piper/en/1.wav",
+        "transcript": "Please call Stella and ask her to bring these things with her from the store.",
+        "error_rate": 0.0
+      },
+      {
+        "text": "Text to speech systems turn written words into natural sounding audio in real time.",
+        "path": "benchmarks/audio/piper/en/2.wav",
+        "transcript": "Text-to-speech systems turn written words into natural sounding audio in real time.",
+        "error_rate": 0.0
+      },
+      {
+        "text": "The meeting has been moved to Thursday afternoon because the manager is away.",
+        "path": "benchmarks/audio/piper/en/3.wav",
+        "transcript": "The meeting has been moved to Thursday afternoon because the manager is away.",
+        "error_rate": 0.0
+      },
+      {
+        "text": "Our new library opens next week with a large collection of science books.",
+        "path": "benchmarks/audio/piper/en/4.wav",
+        "transcript": "Our new library opens next week with a large collection of science books.",
+        "error_rate": 0.0
+      }
+    ],
+    "error_rate": 0.0
+  },
+  {
+    "model": "piper",
+    "language": "bn",
+    "voice": "bn_BD-google-medium",
+    "metric": "CER",
+    "first_call_s": 0.8151914120000185,
+    "latency_median_s": 0.08777701700000762,
+    "latency_min_s": 0.07666462500000648,
+    "latency_max_s": 0.1113946730000066,
+    "rtf": 0.029529135089518155,
+    "peak_rss_mb": 549.536,
+    "rounds": 3,
+    "runs": 15,
+    "clips": [
+      {
+        "text": "আমার সোনার বাংলা, আমি তোমায় ভালোবাসি।",
+        "path": "benchmarks/audio/piper/bn/0.wav",
+        "transcript": "আমার সোনার বাংলা আমি তোমায় ভালোবাসি",
+        "error_rate": 0.0
+      },
+      {
+        "text": "আজ আকাশ মেঘলা, তাই বিকেলে বৃষ্টি হতে পারে।",
+        "path": "benchmarks/audio/piper/bn/1.wav",
+        "transcript": "আজ আকাশ মেঘলা তাই বিকেলে বৃষ্টি হতে পারে",
+        "error_rate": 0.0
+      },
+      {
+        "text": "আমরা প্রতিদিন সকালে নদীর ধারে হাঁটতে যাই।",
+        "path": "benchmarks/audio/piper/bn/2.wav",
+        "transcript": "আমরা প্রতি দিন সকালে নদীর ধারে হাঁটতে যাই",
+        "error_rate": 0.0
+      },
+      {
+        "text": "বইমেলায় অনেক নতুন বই প্রকাশিত হয়েছে।",
+        "path": "benchmarks/audio/piper/bn/3.wav",
+        "transcript": "বইমেলায় অনেক নতুন বই প্রকাশিত হয়েছে",
+        "error_rate": 0.0
+      },
+      {
+        "text": "দয়া করে দরজাটা বন্ধ করে দিন, বাইরে খুব ঠান্ডা।",
+        "path": "benchmarks/audio/piper/bn/4.wav",
+        "transcript": "দ করে দরজাটা বন্ধ করে দিন বাইরে খুবঠান্ না",
+        "error_rate": 0.10810810810810811
+      }
+    ],
+    "error_rate": 0.021621621621621623
+  },
+  {
+    "model": "kokoro",
+    "language": "en",
+    "voice": "af_heart",
+    "metric": "WER",
+    "first_call_s": 2.5498756740000204,
+    "latency_median_s": 1.0328108149999764,
+    "latency_min_s": 0.9096399089999636,
+    "latency_max_s": 1.2806167640000012,
+    "rtf": 0.24978813675415187,
+    "peak_rss_mb": 711.132,
+    "rounds": 3,
+    "runs": 15,
+    "clips": [
+      {
+        "text": "The quick brown fox jumps over the lazy dog near the old river.",
+        "path": "benchmarks/audio/kokoro/en/0.wav",
+        "transcript": "The quick brown fox jumps over the lazy dog near the old river.",
+        "error_rate": 0.0
+      },
+      {
+        "text": "Please call Stella and ask her to bring these things with her from the store.",
+        "path": "benchmarks/audio/kokoro/en/1.wav",
+        "transcript": "Please call Stella and ask her to bring these things with her from the store.",
+        "error_rate": 0.0
+      },
+      {
+        "text": "Text to speech systems turn written words into natural sounding audio in real time.",
+        "path": "benchmarks/audio/kokoro/en/2.wav",
+        "transcript": "Text-to-speech systems turn written words into natural sounding audio in real time.",
+        "error_rate": 0.0
+      },
+      {
+        "text": "The meeting has been moved to Thursday afternoon because the manager is away.",
+        "path": "benchmarks/audio/kokoro/en/3.wav",
+        "transcript": "The meeting has been moved to Thursday afternoon because the manager is away.",
+        "error_rate": 0.0
+      },
+      {
+        "text": "Our new library opens next week with a large collection of science books.",
+        "path": "benchmarks/audio/kokoro/en/4.wav",
+        "transcript": "Our new library opens next week with a large collection of science books.",
+        "error_rate": 0.0
+      }
+    ],
+    "error_rate": 0.0
+  },
+  {
+    "model": "mms",
+    "language": "en",
+    "voice": "eng",
+    "metric": "WER",
+    "first_call_s": 11.306406089000006,
+    "latency_median_s": 0.06006874100000914,
+    "latency_min_s": 0.053549032999967494,
+    "latency_max_s": 0.3143170269999871,
+    "rtf": 0.02286450001292703,
+    "peak_rss_mb": 5815.772,
+    "rounds": 3,
+    "runs": 15,
+    "clips": [
+      {
+        "text": "The quick brown fox jumps over the lazy dog near the old river.",
+        "path": "benchmarks/audio/mms/en/0.wav",
+        "transcript": "The quick brown fox jumps over the lazy dart near the old river.",
+        "error_rate": 0.07692307692307693
+      },
+      {
+        "text": "Please call Stella and ask her to bring these things with her from the store.",
+        "path": "benchmarks/audio/mms/en/1.wav",
+        "transcript": "Please call Stella and ask her to bring these things with her from the store.",
+        "error_rate": 0.0
+      },
+      {
+        "text": "Text to speech systems turn written words into natural sounding audio in real time.",
+        "path": "benchmarks/audio/mms/en/2.wav",
+        "transcript": "Hex-to-speech systems turn written words into natural sounding audio in real time.",
+        "error_rate": 0.07142857142857142
+      },
+      {
+        "text": "The meeting has been moved to Thursday afternoon because the manager is away.",
+        "path": "benchmarks/audio/mms/en/3.wav",
+        "transcript": "The meeting has been moved to Thursday afternoon because the manager is away.",
+        "error_rate": 0.0
+      },
+      {
+        "text": "Our new library opens next week with a large collection of science books.",
+        "path": "benchmarks/audio/mms/en/4.wav",
+        "transcript": "Our new library opens next week with a large collection of sense books.",
+        "error_rate": 0.07692307692307693
+      }
+    ],
+    "error_rate": 0.045054945054945054
+  },
+  {
+    "model": "mms",
+    "language": "bn",
+    "voice": "ben",
+    "metric": "CER",
+    "first_call_s": 1.0785255710000001,
+    "latency_median_s": 0.05733644600002208,
+    "latency_min_s": 0.05354533199999878,
+    "latency_max_s": 0.06202583199998912,
+    "rtf": 0.014234887546041792,
+    "peak_rss_mb": 5815.772,
+    "rounds": 3,
+    "runs": 15,
+    "clips": [
+      {
+        "text": "আমার সোনার বাংলা, আমি তোমায় ভালোবাসি।",
+        "path": "benchmarks/audio/mms/bn/0.wav",
+        "transcript": "আমার সোনার বাম না আমি তোমায় ভালবাসি",
+        "error_rate": 0.0967741935483871
+      },
+      {
+        "text": "আজ আকাশ মেঘলা, তাই বিকেলে বৃষ্টি হতে পারে।",
+        "path": "benchmarks/audio/mms/bn/1.wav",
+        "transcript": "আজ আকাশ মেজা তাই বিকেলে বৃষ্টি হতে পারে",
+        "error_rate": 0.06060606060606061
+      },
+      {
+        "text": "আমরা প্রতিদিন সকালে নদীর ধারে হাঁটতে যাই।",
+        "path": "benchmarks/audio/mms/bn/2.wav",
+        "transcript": "আমরা প্রতিদিন সকালে নদীর ধারে হাঁটতে যাই",
+        "error_rate": 0.0
+      },
+      {
+        "text": "বইমেলায় অনেক নতুন বই প্রকাশিত হয়েছে।",
+        "path": "benchmarks/audio/mms/bn/3.wav",
+        "transcript": "উইমেলায় অনেক নতুন বই প্রকাশিত হয়েছে",
+        "error_rate": 0.03125
+      },
+      {
+        "text": "দয়া করে দরজাটা বন্ধ করে দিন, বাইরে খুব ঠান্ডা।",
+        "path": "benchmarks/audio/mms/bn/4.wav",
+        "transcript": "দয়া করে দরজাটা বনধ করে দিন বাইরে খুব থান্ না",
+        "error_rate": 0.08108108108108109
+      }
+    ],
+    "error_rate": 0.05394226704710576
+  },
+  {
+    "model": "nemo-fastpitch",
+    "language": "en",
+    "voice": "ljspeech",
+    "metric": "WER",
+    "first_call_s": 61.38075171500003,
+    "latency_median_s": 0.08212278499996728,
+    "latency_min_s": 0.07140210699998306,
+    "latency_max_s": 0.10051030500005709,
+    "rtf": 0.018155763167654923,
+    "peak_rss_mb": 6389.62,
+    "rounds": 3,
+    "runs": 15,
+    "clips": [
+      {
+        "text": "The quick brown fox jumps over the lazy dog near the old river.",
+        "path": "benchmarks/audio/nemo-fastpitch/en/0.wav",
+        "transcript": "The quick brown fox jumps over the lazy dog near the old river.",
+        "error_rate": 0.0
+      },
+      {
+        "text": "Please call Stella and ask her to bring these things with her from the store.",
+        "path": "benchmarks/audio/nemo-fastpitch/en/1.wav",
+        "transcript": "Please call Stella and ask her to bring these things with her from the store.",
+        "error_rate": 0.0
+      },
+      {
+        "text": "Text to speech systems turn written words into natural sounding audio in real time.",
+        "path": "benchmarks/audio/nemo-fastpitch/en/2.wav",
+        "transcript": "Text to speech systems turn written words into natural sounding audio in real time.",
+        "error_rate": 0.0
+      },
+      {
+        "text": "The meeting has been moved to Thursday afternoon because the manager is away.",
+        "path": "benchmarks/audio/nemo-fastpitch/en/3.wav",
+        "transcript": "The meeting has been moved to Thursday afternoon because the manager is away.",
+        "error_rate": 0.0
+      },
+      {
+        "text": "Our new library opens next week with a large collection of science books.",
+        "path": "benchmarks/audio/nemo-fastpitch/en/4.wav",
+        "transcript": "Our new library opens next week with a large collection of science books.",
+        "error_rate": 0.0
+      }
+    ],
+    "error_rate": 0.0
+  },
+  {
+    "model": "nemo-vits",
+    "language": "en",
+    "voice": "ljspeech",
+    "metric": "WER",
+    "first_call_s": 56.70671805499998,
+    "latency_median_s": 0.10721909699998378,
+    "latency_min_s": 0.09765000099997678,
+    "latency_max_s": 0.322867930999962,
+    "rtf": 0.029190182106961584,
+    "peak_rss_mb": 6581.476,
+    "rounds": 3,
+    "runs": 15,
+    "clips": [
+      {
+        "text": "The quick brown fox jumps over the lazy dog near the old river.",
+        "path": "benchmarks/audio/nemo-vits/en/0.wav",
+        "transcript": "The quick brown fox jumps over the lazy doll near the old river.",
+        "error_rate": 0.07692307692307693
+      },
+      {
+        "text": "Please call Stella and ask her to bring these things with her from the store.",
+        "path": "benchmarks/audio/nemo-vits/en/1.wav",
+        "transcript": "Please call Stella and ask her to bring these things with her from the store.",
+        "error_rate": 0.0
+      },
+      {
+        "text": "Text to speech systems turn written words into natural sounding audio in real time.",
+        "path": "benchmarks/audio/nemo-vits/en/2.wav",
+        "transcript": "Text to speech systems turn written words into natural sounding audio in real time.",
+        "error_rate": 0.0
+      },
+      {
+        "text": "The meeting has been moved to Thursday afternoon because the manager is away.",
+        "path": "benchmarks/audio/nemo-vits/en/3.wav",
+        "transcript": "The meeting has been moved to Thursday afternoon because the manager is away.",
+        "error_rate": 0.0
+      },
+      {
+        "text": "Our new library opens next week with a large collection of science books.",
+        "path": "benchmarks/audio/nemo-vits/en/4.wav",
+        "transcript": "Our new library opens next week with a large collection of science books.",
+        "error_rate": 0.0
+      }
+    ],
+    "error_rate": 0.015384615384615385
+  },
+  {
+    "model": "edge",
+    "language": "en",
+    "voice": "en-US-AriaNeural",
+    "metric": "WER",
+    "first_call_s": 0.7783575870000163,
+    "latency_median_s": 0.38956848999998783,
+    "latency_min_s": 0.33597412300002816,
+    "latency_max_s": 0.5350875679999945,
+    "rtf": 0.08236412604336213,
+    "peak_rss_mb": 90.24,
+    "rounds": 3,
+    "runs": 15,
+    "clips": [
+      {
+        "text": "The quick brown fox jumps over the lazy dog near the old river.",
+        "path": "benchmarks/audio/edge/en/0.wav",
+        "transcript": "The quick, brown fox jumps over the lazy dog near the old river.",
+        "error_rate": 0.0
+      },
+      {
+        "text": "Please call Stella and ask her to bring these things with her from the store.",
+        "path": "benchmarks/audio/edge/en/1.wav",
+        "transcript": "Please call Stella and ask her to bring these things with her from the store.",
+        "error_rate": 0.0
+      },
+      {
+        "text": "Text to speech systems turn written words into natural sounding audio in real time.",
+        "path": "benchmarks/audio/edge/en/2.wav",
+        "transcript": "Text-to-speech systems turn written words into natural sounding audio in real time.",
+        "error_rate": 0.0
+      },
+      {
+        "text": "The meeting has been moved to Thursday afternoon because the manager is away.",
+        "path": "benchmarks/audio/edge/en/3.wav",
+        "transcript": "The meeting has been moved to Thursday afternoon because the manager is away.",
+        "error_rate": 0.0
+      },
+      {
+        "text": "Our new library opens next week with a large collection of science books.",
+        "path": "benchmarks/audio/edge/en/4.wav",
+        "transcript": "Our new library opens next week with a large collection of science books.",
+        "error_rate": 0.0
+      }
+    ],
+    "error_rate": 0.0
+  },
+  {
+    "model": "edge",
+    "language": "bn",
+    "voice": "bn-BD-NabanitaNeural",
+    "metric": "CER",
+    "first_call_s": 0.3478863400000023,
+    "latency_median_s": 0.3741356070000279,
+    "latency_min_s": 0.31008601999997154,
+    "latency_max_s": 0.5360937340000191,
+    "rtf": 0.10922304565684483,
+    "peak_rss_mb": 90.24,
+    "rounds": 3,
+    "runs": 15,
+    "clips": [
+      {
+        "text": "আমার সোনার বাংলা, আমি তোমায় ভালোবাসি।",
+        "path": "benchmarks/audio/edge/bn/0.wav",
+        "transcript": "আমার সোনার বাংলা আমি তোমায় ভালোবাসি",
+        "error_rate": 0.0
+      },
+      {
+        "text": "আজ আকাশ মেঘলা, তাই বিকেলে বৃষ্টি হতে পারে।",
+        "path": "benchmarks/audio/edge/bn/1.wav",
+        "transcript": "আজ আকাশমেঘলা তাই বিকেলে বৃষ্টি হতে পারে",
+        "error_rate": 0.0
+      },
+      {
+        "text": "আমরা প্রতিদিন সকালে নদীর ধারে হাঁটতে যাই।",
+        "path": "benchmarks/audio/edge/bn/2.wav",
+        "transcript": "আমরা প্রতিদিন সকালে নদীর ধারে হাঁটতে যাই",
+        "error_rate": 0.0
+      },
+      {
+        "text": "বইমেলায় অনেক নতুন বই প্রকাশিত হয়েছে।",
+        "path": "benchmarks/audio/edge/bn/3.wav",
+        "transcript": "বইমেলায় অনেক নতুন বই প্রকাশিত হয়েছে",
+        "error_rate": 0.0
+      },
+      {
+        "text": "দয়া করে দরজাটা বন্ধ করে দিন, বাইরে খুব ঠান্ডা।",
+        "path": "benchmarks/audio/edge/bn/4.wav",
+        "transcript": "দয়া করে দরজাটা বন্ধ করে দিন বাইরে খুব ঠাান্ডা",
+        "error_rate": 0.02702702702702703
+      }
+    ],
+    "error_rate": 0.005405405405405406
+  }
+]
