@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ttsbench</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <header>
+    <h1>ttsbench</h1>
+    <p class="muted">Try, compare, and benchmark English and Bangla text-to-speech models.</p>
+    <div id="system" class="muted small"></div>
+  </header>
+
+  <nav class="tabs" role="tablist">
+    <button role="tab" data-tab="try" aria-selected="true">Try a model</button>
+    <button role="tab" data-tab="compare" aria-selected="false">Compare</button>
+    <button role="tab" data-tab="benchmark" aria-selected="false">Benchmark</button>
+  </nav>
+
+  <main>
+    <section id="tab-try" class="panel">
+      <div class="grid">
+        <label>Language
+          <select id="try-language"></select>
+        </label>
+        <label>Model
+          <select id="try-model"></select>
+        </label>
+        <label>Voice
+          <select id="try-voice"></select>
+        </label>
+        <label>Speed <span id="try-speed-value">1.00x</span>
+          <input id="try-speed" type="range" min="0.5" max="2" step="0.05" value="1">
+        </label>
+      </div>
+      <p id="try-model-info" class="muted small"></p>
+      <label>Text
+        <textarea id="try-text" rows="4" maxlength="2000"></textarea>
+      </label>
+      <div class="actions">
+        <button id="try-run" class="primary">Synthesize</button>
+        <span class="muted small">Ctrl+Enter or Cmd+Enter</span>
+      </div>
+      <p id="try-error" class="error" hidden></p>
+      <div id="try-result" hidden>
+        <audio id="try-audio" controls></audio>
+        <dl id="try-metrics" class="metrics"></dl>
+        <a id="try-download" download="speech.wav">Download WAV</a>
+      </div>
+    </section>
+
+    <section id="tab-compare" class="panel" hidden>
+      <div class="grid">
+        <label>Language
+          <select id="compare-language"></select>
+        </label>
+        <label>Speed <span id="compare-speed-value">1.00x</span>
+          <input id="compare-speed" type="range" min="0.5" max="2" step="0.05" value="1">
+        </label>
+      </div>
+      <label>Text
+        <textarea id="compare-text" rows="3" maxlength="2000"></textarea>
+      </label>
+      <fieldset>
+        <legend>Models</legend>
+        <div id="compare-models" class="model-list"></div>
+      </fieldset>
+      <div class="actions">
+        <button id="compare-run" class="primary">Run comparison</button>
+      </div>
+      <table id="compare-table" hidden>
+        <thead>
+          <tr><th>Model</th><th>Voice</th><th>Audio</th><th>Latency (s)</th><th>Audio (s)</th><th>RTF</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </section>
+
+    <section id="tab-benchmark" class="panel" hidden>
+      <p class="muted">
+        Results from <code>uv run ttsbench-bench</code>. RTF is synthesis time divided by audio length, so lower is faster.
+        ASR error is the word error rate (English, Parakeet) or character error rate (Bangla, Conformer) of an ASR transcript of the generated audio, so lower means more intelligible.
+      </p>
+      <p id="benchmark-empty" class="muted" hidden>No results yet. Run <code>uv run ttsbench-bench</code>.</p>
+      <table id="benchmark-table" hidden>
+        <thead>
+          <tr><th>Model</th><th>Language</th><th>Voice</th><th>First call (s)</th><th>Median latency (s)</th><th>RTF</th><th>Peak RAM (MB)</th><th>ASR error</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </section>
+  </main>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
