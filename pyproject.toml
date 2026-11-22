@@ -1,0 +1,32 @@
+[project]
+name = "ttsbench"
+version = "0.1.0"
+description = "Run, compare, and benchmark English and Bangla TTS models from one web UI"
+readme = "README.md"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "fastapi>=0.115",
+    "huggingface-hub>=0.26",
+    "numpy>=1.26",
+    "psutil>=6.0",
+    "soundfile>=0.13",
+    "uvicorn>=0.32",
+]
+
+[project.optional-dependencies]
+piper = ["piper-tts>=1.3"]
+kokoro = ["kokoro-onnx>=0.4"]
+mms = ["torch>=2.5", "transformers>=4.48"]
+edge = ["edge-tts>=7.0"]
+nemo = ["nemo-toolkit[tts]>=2.6,<3", "ml-dtypes<0.5", "onnx<1.18"]
+asr = ["nemo-toolkit[asr]>=2.6,<3", "jiwer>=3.0", "scipy>=1.13"]
+all = ["ttsbench[piper,kokoro,mms,edge,nemo,asr]"]
+
+[project.scripts]
+ttsbench-serve = "ttsbench.server:main"
+ttsbench-bench = "ttsbench.benchmark:main"
+ttsbench-download = "ttsbench.download:main"
+
+[build-system]
+requires = ["uv_build>=0.9,<0.14"]
+build-backend = "uv_build"

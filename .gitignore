@@ -24,16 +24,18 @@ audio
 tts_dataset_
 
 # Large local models (not tracked in git)
-tts-test-kayutai/models/dsm_tts_1e68beda@240.safetensors
+experiments/tts-test-kayutai/models/dsm_tts_1e68beda@240.safetensors
+/models/
 
 # Generated audio and training runs
 outputs/
-voice-swap-NeMo/hifigan_ft/
-voice-swap-NeMo/ljspeech_to_9017_no_mixing_5_mins/
-fastpitch-hifigan-finetune/**/output*.wav
-fastpitch-hifigan-finetune/**/output*.mp3
-fastpitch-hifigan-finetune/**/custom_output.wav
-fastpitch-hifigan-finetune/**/custom_voice_output.wav
-fastpitch-hifigan-finetune/**/extracted_embedding.pt
-fastpitch-hifigan-finetune/test.wav
-fastpitch-hifigan-finetune/final_custom_voice.wav
+benchmarks/audio/
+experiments/voice-swap-NeMo/hifigan_ft/
+experiments/voice-swap-NeMo/ljspeech_to_9017_no_mixing_5_mins/
+experiments/fastpitch-hifigan-finetune/**/output*.wav
+experiments/fastpitch-hifigan-finetune/**/output*.mp3
+experiments/fastpitch-hifigan-finetune/**/custom_output.wav
+experiments/fastpitch-hifigan-finetune/**/custom_voice_output.wav
+experiments/fastpitch-hifigan-finetune/**/extracted_embedding.pt
+experiments/fastpitch-hifigan-finetune/test.wav
+experiments/fastpitch-hifigan-finetune/final_custom_voice.wav
