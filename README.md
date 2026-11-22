@@ -91,7 +91,7 @@ The same install, download, and benchmark also ran in a Linux aarch64 Docker con
 
 ## Run on a GPU
 
-[`docker/Dockerfile.gpu`](docker/Dockerfile.gpu) builds an x86_64 Linux image with every engine. PyTorch's CUDA libraries come with its wheels, so the host needs only an NVIDIA driver that supports CUDA 13.2 and the NVIDIA Container Toolkit. MMS-TTS, both NeMo models, and the ASR models run on the GPU. Piper and Kokoro use the CPU build of ONNX Runtime, so they stay on the CPU, and Edge TTS runs in Microsoft's cloud.
+[`docker/Dockerfile.gpu`](docker/Dockerfile.gpu) builds an x86_64 Linux image with every engine. PyTorch's CUDA libraries come with its wheels, so the host needs only an NVIDIA driver that supports CUDA 13.2 and the NVIDIA Container Toolkit. MMS-TTS, both NeMo models, and the ASR models run on the GPU through PyTorch. The image also swaps `onnxruntime` for `onnxruntime-gpu`, so Piper and Kokoro use ONNX Runtime's CUDA provider. Edge TTS runs in Microsoft's cloud. Set `TTSBENCH_DEVICE=cpu` to keep every engine on the CPU.
 
 To run the benchmark on [Modal](https://modal.com), log in with `uvx modal setup`, then run:
 
@@ -127,7 +127,7 @@ One `uvx modal run modal_app.py --gpu L4` run, with PyTorch 2.15 on CUDA 13.2, 8
 | Edge TTS (cloud) | Bangla | 0.35 | 0.374 | 0.109 | 1.132 |
 
 - On the GPU, MMS-TTS and the NeMo models are 4.7 to 6.7 times faster than on the Mac CPU, and all three beat Piper's latency on the same machine.
-- Piper and Kokoro run on the container's CPU, which is slower than the M5, so a GPU machine does not help them.
+- Piper and Kokoro ran on the container's CPU in this run, which is slower than the M5. The image now runs them on the GPU with `onnxruntime-gpu`, but that version has not been benchmarked yet.
 - First call for the NeMo models takes about a minute, against 6 seconds on the Mac. The run does not show why. Reading the weights from the Modal volume and starting CUDA are likely causes, but neither was measured.
 - An earlier L4 run, on Modal's default CPU allotment, gave 0.044 s for MMS-TTS English and 0.050 s for NeMo FastPitch. GPU latencies varied by up to about 60% between the two runs, which ran on different Modal hosts.
 - Edge TTS is faster from Modal than from the Mac, likely because Modal's data center has a shorter network path to Microsoft.
