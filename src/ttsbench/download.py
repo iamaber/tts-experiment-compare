@@ -4,10 +4,10 @@ Files land in the Hugging Face cache, the NeMo cache, or models/ (Kokoro). Runs 
 """
 
 import argparse
-import importlib.util
 import sys
 import time
 
+from ttsbench.core import ASR_REQUIRES, installed
 from ttsbench.registry import MODELS
 
 
@@ -29,7 +29,7 @@ def main() -> None:
     failures = []
     for spec in (MODELS[id] for id in args.models or MODELS):
         if not spec.available:
-            print(f"skip {spec.id}: not installed, run `uv sync --extra {spec.extra}`")
+            print(f"skip {spec.id}: not installed, run `{spec.install_command}`")
             continue
         if spec.online:
             print(f"skip {spec.id}: cloud service, nothing to download")
@@ -44,7 +44,7 @@ def main() -> None:
             continue
         print(f"  done in {time.perf_counter() - start:.1f}s")
 
-    if not args.skip_asr and all(map(importlib.util.find_spec, ("jiwer", "nemo"))):
+    if not args.skip_asr and installed(*ASR_REQUIRES):
         from ttsbench.asr import ASR_MODELS, load_asr
 
         for language, name in ASR_MODELS.items():

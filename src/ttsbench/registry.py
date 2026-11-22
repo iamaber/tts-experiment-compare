@@ -1,9 +1,8 @@
 import importlib
-import importlib.util
 from dataclasses import dataclass
 from typing import Any
 
-from ttsbench.core import Engine, Language, Voice
+from ttsbench.core import Engine, Language, Voice, installed
 
 
 @dataclass(frozen=True)
@@ -26,7 +25,11 @@ class ModelSpec:
 
     @property
     def available(self) -> bool:
-        return all(importlib.util.find_spec(name) for name in self.requires)
+        return installed(*self.requires)
+
+    @property
+    def install_command(self) -> str:
+        return f"uv sync --extra {self.extra}"
 
     def voice(self, voice_id: str) -> Voice:
         for voice in self.voices:

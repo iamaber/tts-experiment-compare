@@ -49,7 +49,7 @@ def _describe(spec: ModelSpec) -> dict:
         "speed_control": spec.speed_control,
         "license": spec.license,
         "available": spec.available,
-        "install_hint": f"uv sync --extra {spec.extra}",
+        "install_hint": spec.install_command,
     }
 
 
@@ -74,7 +74,7 @@ def synthesize(request: SynthesisRequest) -> Response:
         raise HTTPException(404, f"unknown model {request.model!r}")
     if not spec.available:
         raise HTTPException(
-            400, f"{spec.name} is not installed. Run: uv sync --extra {spec.extra}"
+            400, f"{spec.name} is not installed. Run: {spec.install_command}"
         )
     try:
         voice = spec.voice(request.voice)
