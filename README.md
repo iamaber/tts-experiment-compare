@@ -1,153 +1,121 @@
 # TTS experiments
 
-Text-to-speech experiments with NVIDIA NeMo (FastPitch, HiFi-GAN, VITS, TitaNet) and Kyutai TTS. Each folder is a separate project with its own dependencies.
+`ttsbench` runs several open text-to-speech models behind one web UI and one benchmark, so you can hear and measure them side by side. It covers English and Bangla. The older one-off experiments live in [`experiments/`](experiments/).
 
-| Project | What it does |
-|---|---|
-| [`tts-compare`](tts-compare/) | Benchmarks FastPitch + HiFi-GAN and VITS for latency, real-time factor, CPU, RAM, and VRAM, from the CLI or a web UI |
-| [`fastpitch-hifigan-finetune`](fastpitch-hifigan-finetune/) | Multi-speaker FastPitch TTS, speaker embedding extraction (TitaNet, Resemblyzer, ECAPA), and a speaker adapter for voice cloning |
-| [`voice-swap-NeMo`](voice-swap-NeMo/) | Fine-tunes FastPitch and HiFi-GAN on 5 minutes of a new speaker, plus an ASR-to-TTS voice swap demo |
-| [`tts-test-kayutai`](tts-test-kayutai/) | Kyutai TTS notebook with voice conditioning, and an HTML frontend for a Kyutai TTS backend |
+## Models
 
-## Requirements
+| Model | Languages | Voices | Runs on | Speed control | License |
+|---|---|---|---|---|---|
+| Piper | English, Bangla | Lessac, Amy, Alan, Google bn_BD | CPU (ONNX) | yes | MIT code, per-voice data licenses |
+| Kokoro 82M | English | 5 US and UK voices | CPU (ONNX) | yes | Apache-2.0 |
+| MMS-TTS | English, Bangla | one per language | CPU or CUDA (PyTorch) | yes | CC-BY-NC-4.0 |
+| NeMo FastPitch + HiFi-GAN | English | LJSpeech | CPU or CUDA (PyTorch) | yes | CC-BY-4.0 |
+| NeMo VITS | English | LJSpeech | CPU or CUDA (PyTorch) | no | CC-BY-4.0 |
+| Edge TTS | English, Bangla | 3 English, 3 Bangla | Microsoft cloud | yes | Microsoft service terms |
 
-- [uv](https://docs.astral.sh/uv/) to manage each project's Python environment
-- An NVIDIA GPU with CUDA. Most scripts fall back to CPU, which is much slower.
-- [Git LFS](https://git-lfs.com/) for the `.nemo` checkpoint and the Kyutai tokenizer files. Run `git lfs pull` after cloning.
+MMS-TTS is licensed for non-commercial use only. Edge TTS sends your text to Microsoft and needs an internet connection.
 
-NeMo downloads pretrained models on first use, about 100 MB to 1 GB per model.
+## Get started
 
-## tts-compare
+You need [uv](https://docs.astral.sh/uv/) and about 8 GB of disk: 2 GB for the environment, 2.3 GB for the TTS weights, and 2.9 GB for the two ASR models the benchmark uses. A CUDA GPU is used when present, otherwise everything runs on the CPU. Set `TTSBENCH_DEVICE` to override the device.
 
-Python 3.12.
+1. Install every engine. To install only some, pass `--extra piper`, `--extra kokoro`, `--extra mms`, `--extra edge`, `--extra nemo`, and `--extra asr` (the benchmark's accuracy check) instead.
 
-```bash
-cd tts-compare
-uv sync
-```
+   ```bash
+   uv sync --all-extras
+   ```
 
-Web UI: start the server, then open http://localhost:8000. Pick a model, enter text, and press "Synthesize" or Ctrl+Enter (Cmd+Enter on macOS).
+2. Download all model weights ahead of time. Without this step each model downloads on first use. Running it again skips files already present.
 
-```bash
-uv run python app.py
-```
+   ```bash
+   uv run ttsbench-download
+   ```
 
-CLI benchmarks. Audio goes to `outputs/`, and each run prints latency, audio duration, and real-time factor.
+   Pass `--models piper kokoro` to download a subset, or `--skip-asr` to skip the ASR models. Weights go to the Hugging Face cache, the NeMo cache, and `models/` (Kokoro, or `TTSBENCH_MODELS` if set).
 
-```bash
-uv run python main.py                  # all models
-uv run python fastpitch+HiFi-GAN.py    # FastPitch + HiFi-GAN
-uv run python vits+hifigan.py          # VITS
-```
+3. Start the web UI and open http://127.0.0.1:8000.
 
-`pyproject.toml` pins `onnx<1.18`. Newer onnx releases need `ml_dtypes` types that `ml-dtypes<0.5` doesn't have, so NeMo fails to import.
+   ```bash
+   uv run ttsbench-serve
+   ```
 
-## fastpitch-hifigan-finetune
+   The **Try a model** tab synthesizes one clip and shows latency, audio length, and real-time factor. The **Compare** tab runs the same text through every model you tick and lists the results in one table. The **Benchmark** tab shows the latest benchmark results.
 
-Python 3.10.
+## Run the benchmark
 
 ```bash
-cd fastpitch-hifigan-finetune
-uv sync
+uv run ttsbench-bench
 ```
 
-Multi-speaker TTS with the pretrained voices (`speaker=92` by default, edit `__main__` to change text or speaker). Writes `test.wav`.
+For each installed model and language, the benchmark synthesizes the sentences in [`benchmarks/texts.json`](benchmarks/texts.json) three times each and records:
 
-```bash
-uv run python tts.py
+- first call: time to load the model and synthesize the first sentence
+- median latency per sentence
+- real-time factor (RTF): total synthesis time divided by total audio length, so 0.1 means ten times faster than real time
+- peak RAM of the process
+- ASR error: an ASR model transcribes each clip, then the benchmark computes word error rate (WER) for English and character error rate (CER) for Bangla against the input text
+
+English clips go to [NVIDIA Parakeet TDT 0.6B v2](https://huggingface.co/nvidia/parakeet-tdt-0.6b-v2). Bangla clips go to [hishab/titu_stt_bn_conformer_large](https://huggingface.co/hishab/titu_stt_bn_conformer_large), which has the lowest public-model WER on FLEURS Bengali in the [Bengali ASR benchmark](https://github.com/ehzawad/bengali-asr-benchmark). Whisper large-v3 turbo was tried first and dropped. It gave 17% CER on Edge TTS Bangla, a near-human voice, against 1% for the Conformer, so it hid the differences between TTS models. The Conformer's training data includes OpenSLR 37, the dataset behind the Piper Bangla voice, which may flatter Piper's Bangla score.
+
+Each model runs in its own subprocess, so load time and memory are not shared. Results go to [`benchmarks/results/`](benchmarks/results/) as `results.json` and `results.md`, with every transcript in the JSON. The generated audio goes to `benchmarks/audio/`.
+
+Useful flags: `--models kokoro piper`, `--languages bn`, `--runs 5`, and `--no-asr`.
+
+## Results on an Apple M5 CPU
+
+One `uv run ttsbench-bench --runs 3` run on an Apple M5 with 24 GB of RAM, CPU only. Each row is 15 syntheses: 5 sentences, 3 runs each. Models ran one after another, not interleaved, with each runtime's default thread settings.
+
+| Model | Language | Voice | First call (s) | Median latency (s) | RTF | Peak RAM (MB) | ASR error |
+|---|---|---|---|---|---|---|---|
+| Piper | English | en_US-lessac-medium | 0.90 | 0.069 | 0.017 | 602 | 1.5% WER |
+| Piper | Bangla | bn_BD-google-medium | 0.74 | 0.048 | 0.017 | 602 | 2.8% CER |
+| Kokoro 82M | English | af_heart | 1.53 | 0.856 | 0.200 | 747 | 0.0% WER |
+| MMS-TTS | English | eng | 4.12 | 0.409 | 0.080 | 1959 | 6.3% WER |
+| MMS-TTS | Bangla | ben | 2.00 | 0.306 | 0.082 | 1959 | 6.3% CER |
+| NeMo FastPitch + HiFi-GAN | English | ljspeech | 5.94 | 0.500 | 0.104 | 2739 | 3.3% WER |
+| NeMo VITS | English | ljspeech | 4.30 | 0.553 | 0.108 | 3844 | 4.9% WER |
+| Edge TTS | English | en-US-AriaNeural | 1.28 | 1.131 | 0.231 | 59 | 0.0% WER |
+| Edge TTS | Bangla | bn-BD-NabanitaNeural | 1.02 | 1.065 | 0.307 | 59 | 0.9% CER |
+
+What the numbers say:
+
+- Piper is the fastest model by a wide margin, about 60 times faster than real time in both languages, with the least memory of the local models. Its slowest English synthesis took 91 ms against Kokoro's fastest at 721 ms.
+- Kokoro and Edge TTS had no English word errors. Kokoro is the most accurate English model that runs offline.
+- For Bangla, Edge TTS is the most accurate (0.9% CER) but sends text to Microsoft. Piper is the best offline Bangla model here, with two caveats: it swallowed "দয়া" at the start of one sentence, and the Bangla ASR model was partly trained on Piper's source dataset. MMS-TTS made more real word errors, such as "বইমেলায়" heard as "বীণএ রায়".
+- Error rates under about 5% are mostly spelling variants rather than mispronunciations: "traveling" heard as "travelling", "riverbank" as "river bank", and "ভালোবাসি" as "ভালবাসি". Treat those models as tied and compare them by ear in the UI. Every transcript is in `results.json`.
+- Edge TTS latency is a network round trip to Microsoft, so it depends on your connection, not your hardware.
+- ASR error measures intelligibility, not naturalness. A clear but robotic voice scores well.
+
+## Add a model
+
+1. Write an engine class in `src/ttsbench/engines/`. It needs a `download(voices)` classmethod that fetches the weights and a `synthesize(text, voice, speed)` method that returns `ttsbench.core.Audio`. Load weights lazily so the server starts fast.
+2. Add a `ModelSpec` to `MODELS` in [`src/ttsbench/registry.py`](src/ttsbench/registry.py) with its voices, the import names it requires, and its `pyproject.toml` extra.
+3. Add its dependencies as a new extra in `pyproject.toml` and to the `all` extra.
+
+The web UI, the benchmark, and the download script read the registry, so they pick up the new model without changes.
+
+## Repository layout
+
+```text
+src/ttsbench/
+  core.py          Voice, Audio, and Engine types
+  registry.py      every model, its voices, and its dependencies
+  engines/         one module per model family
+  server.py        FastAPI app behind ttsbench-serve
+  web/             static frontend
+  benchmark.py     ttsbench-bench
+  download.py      ttsbench-download
+  asr.py           ASR round trip and WER/CER
+benchmarks/
+  texts.json       English and Bangla test sentences
+  results/         latest benchmark results
+experiments/       earlier standalone projects, each with its own environment
 ```
 
-Extract a speaker embedding from a recording. Backends are `titanet` (default), `resemblyzer`, and `ecapa`.
+## Experiments
 
-```bash
-uv run python speaker_encoder.py custom-voice/record.wav my_voice.pt titanet
-```
+These projects predate `ttsbench`. Each has its own `pyproject.toml` and README.
 
-Generate speech conditioned on a voice. The input can be a `.wav` file or a saved `.pt` embedding.
-
-```bash
-uv run python custom_voice_tts.py my_voice.pt "Your text here" output.wav 1.0
-uv run python custom_fastpitch.py custom-voice/record.wav "Your text here" custom_output.wav 1.0
-```
-
-The speaker adapter adds the TitaNet embedding to FastPitch's encoder output, but it is untrained, so the output does not match the reference voice yet.
-
-Microsoft Edge TTS, which needs an internet connection:
-
-```bash
-uv run python edge-xtts/synthesize.py --list
-uv run python edge-xtts/synthesize.py --text "Hello there" --voice en-US-AriaNeural --output output.mp3
-```
-
-`experiments/` holds earlier voice cloning attempts. See [`experiments/README.md`](fastpitch-hifigan-finetune/experiments/README.md) and [`VOICE_CLONING_COMPARISON.md`](fastpitch-hifigan-finetune/experiments/VOICE_CLONING_COMPARISON.md) for what each one does and why it falls short.
-
-## voice-swap-NeMo
-
-Python 3.12.
-
-```bash
-cd voice-swap-NeMo
-uv sync
-uv run --with jupyter jupyter lab
-```
-
-Notebooks:
-
-- `FastPitch_Finetuning.ipynb` walks through the full fine-tuning pipeline: download the speaker 9017 data, fine-tune FastPitch, generate mel spectrograms with the fine-tuned model, then fine-tune HiFi-GAN on them.
-- `voice_swap.ipynb` transcribes `2086-149220-0033.wav` with QuartzNet ASR, then speaks the transcript with TTS.
-
-The training scripts can also run directly. FastPitch, starting from the bundled `tts_en_fastpitch_align.nemo`:
-
-```bash
-uv run python fastpitch_finetune.py --config-name=fastpitch_align_v1.05 \
-  train_dataset=./9017_manifest_train_dur_5_mins_local.json \
-  validation_datasets=./9017_manifest_dev_ns_all_local.json \
-  sup_data_path=./fastpitch_sup_data \
-  phoneme_dict_path=tts_dataset_files/cmudict-0.7b_nv22.10 \
-  heteronyms_path=tts_dataset_files/heteronyms-052722.txt \
-  exp_manager.exp_dir=./ljspeech_to_9017_no_mixing_5_mins \
-  +init_from_nemo_model=./tts_en_fastpitch_align.nemo \
-  +trainer.max_steps=1000 ~trainer.max_epochs \
-  trainer.check_val_every_n_epoch=25 \
-  model.train_ds.dataloader_params.batch_size=4 model.validation_ds.dataloader_params.batch_size=4 \
-  model.train_ds.dataloader_params.num_workers=0 model.validation_ds.dataloader_params.num_workers=0 \
-  model.n_speakers=1 model.pitch_mean=152.3 model.pitch_std=64.0 \
-  model.pitch_fmin=30 model.pitch_fmax=512 model.optim.lr=2e-4 \
-  ~model.optim.sched model.optim.name=adam trainer.devices=1 trainer.strategy=auto \
-  model.train_ds.dataset.min_duration=0.5 \
-  ++model.text_tokenizer.add_blank_at=true
-```
-
-HiFi-GAN, starting from the pretrained `tts_en_hifigan`. The manifests need `audio_filepath`, `mel_filepath`, and `duration` for each entry. The notebook creates `hifigan_train_ft.json` and `hifigan_val_ft.json` from the fine-tuned FastPitch.
-
-```bash
-uv run python hifigan_finetune.py --config-name=hifigan \
-  +init_from_pretrained_model=tts_en_hifigan \
-  train_dataset=./hifigan_train_ft.json \
-  validation_datasets=./hifigan_val_ft.json \
-  model.train_ds.dataloader_params.batch_size=8 \
-  model.validation_ds.dataloader_params.batch_size=8 \
-  model.max_steps=500 model.optim.lr=0.00001 ~model.optim.sched \
-  exp_manager.exp_dir=./hifigan_ft \
-  trainer.check_val_every_n_epoch=10 trainer.devices=1 trainer.strategy=auto
-```
-
-## tts-test-kayutai
-
-This project has no `pyproject.toml`. The notebook installs its own dependency.
-
-```bash
-cd tts-test-kayutai
-uv run --with "moshi==0.2.11" --with jupyter jupyter lab
-```
-
-`tts_kayutai.ipynb` loads Kyutai TTS from Hugging Face and generates speech in the voice of `demo_audio/american_accent_0.wav`. It runs on CUDA.
-
-`frontend-html/` is a static web UI with word highlighting, voice upload, and system metrics. It calls a backend at `http://localhost:8000` (`/api/tts`, `/api/voices`, `/api/clone-voice`, `/api/system-info`, `/api/metrics`). That backend is not in this repository. To serve the UI:
-
-```bash
-cd tts-test-kayutai/frontend-html
-python3 -m http.server 3000
-```
-
-Then open http://localhost:3000.
+- [`experiments/fastpitch-hifigan-finetune`](experiments/fastpitch-hifigan-finetune/) tries voice cloning with a multi-speaker FastPitch model and TitaNet speaker embeddings.
+- [`experiments/voice-swap-NeMo`](experiments/voice-swap-NeMo/) fine-tunes FastPitch and HiFi-GAN on 5 minutes of a new speaker and has an ASR-to-TTS voice swap notebook.
+- [`experiments/tts-test-kayutai`](experiments/tts-test-kayutai/) is a Kyutai TTS notebook with voice conditioning. It needs a CUDA GPU, so it is not part of `ttsbench`.
