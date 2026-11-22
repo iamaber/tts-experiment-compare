@@ -18,6 +18,7 @@ class ModelSpec:
     license: str
     online: bool = False
     speed_control: bool = True
+    weights_per_voice: bool = False
 
     @property
     def languages(self) -> tuple[Language, ...]:
@@ -66,6 +67,7 @@ MODELS: dict[str, ModelSpec] = {
             )
             + _voices("bn", ("bn_BD-google-medium", "Google (Bangladesh)")),
             license="MIT code; per-voice dataset licenses",
+            weights_per_voice=True,
         ),
         ModelSpec(
             id="kokoro",
@@ -94,6 +96,7 @@ MODELS: dict[str, ModelSpec] = {
             voices=_voices("en", ("eng", "English"))
             + _voices("bn", ("ben", "Bengali")),
             license="CC-BY-NC-4.0",
+            weights_per_voice=True,
         ),
         ModelSpec(
             id="nemo-fastpitch",
@@ -101,7 +104,7 @@ MODELS: dict[str, ModelSpec] = {
             description="Non-autoregressive FastPitch spectrogram model with a HiFi-GAN vocoder, trained on LJSpeech.",
             engine="ttsbench.engines.nemo:FastPitchHifiGan",
             extra="nemo",
-            requires=("nemo",),
+            requires=("nemo", "pypinyin"),
             voices=_voices("en", ("ljspeech", "LJSpeech (US, female)")),
             license="CC-BY-4.0",
         ),
@@ -111,7 +114,7 @@ MODELS: dict[str, ModelSpec] = {
             description="End-to-end VITS model trained on LJSpeech.",
             engine="ttsbench.engines.nemo:Vits",
             extra="nemo",
-            requires=("nemo",),
+            requires=("nemo", "pypinyin"),
             voices=_voices("en", ("ljspeech", "LJSpeech (US, female)")),
             license="CC-BY-4.0",
             speed_control=False,

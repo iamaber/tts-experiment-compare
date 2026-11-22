@@ -13,7 +13,7 @@
 | NeMo VITS | English | LJSpeech | CPU or CUDA (PyTorch) | no | CC-BY-4.0 |
 | Edge TTS | English, Bangla | 3 English, 3 Bangla | Microsoft cloud | yes | Microsoft service terms |
 
-MMS-TTS is licensed for non-commercial use only. Edge TTS sends your text to Microsoft and needs an internet connection.
+MMS-TTS is licensed for non-commercial use only. Edge TTS sends your text to Microsoft and needs an internet connection. On macOS and ARM Linux, NeMo installs without its text normalizer, so the NeMo models read digits poorly. Write numbers as words for them.
 
 ## Get started
 
@@ -82,14 +82,14 @@ What the numbers say:
 - Piper is the fastest model by a wide margin, about 60 times faster than real time in both languages, with the least memory of the local models. Its slowest English synthesis took 91 ms against Kokoro's fastest at 721 ms.
 - Kokoro and Edge TTS had no English word errors. Kokoro is the most accurate English model that runs offline.
 - For Bangla, Edge TTS is the most accurate (0.9% CER) but sends text to Microsoft. Piper is the best offline Bangla model here, with two caveats: it swallowed "দয়া" at the start of one sentence, and the Bangla ASR model was partly trained on Piper's source dataset. MMS-TTS made more real word errors, such as "বইমেলায়" heard as "বীণএ রায়".
-- Error rates under about 5% are mostly spelling variants rather than mispronunciations: "traveling" heard as "travelling", "riverbank" as "river bank", and "ভালোবাসি" as "ভালবাসি". Treat those models as tied and compare them by ear in the UI. Every transcript is in `results.json`.
+- Many of the errors under about 5% are spelling variants rather than mispronunciations: "traveling" heard as "travelling", "riverbank" as "river bank", and "ভালোবাসি" as "ভালবাসি". Others look real, such as NeMo VITS's "the manager" heard as "a manager". Check the transcripts in `results.json` and compare close models by ear in the UI.
 - Edge TTS latency is a network round trip to Microsoft, so it depends on your connection, not your hardware.
 - ASR error measures intelligibility, not naturalness. A clear but robotic voice scores well.
 
 ## Add a model
 
 1. Write an engine class in `src/ttsbench/engines/`. It needs a `download(voices)` classmethod that fetches the weights and a `synthesize(text, voice, speed)` method that returns `ttsbench.core.Audio`. Load weights lazily so the server starts fast.
-2. Add a `ModelSpec` to `MODELS` in [`src/ttsbench/registry.py`](src/ttsbench/registry.py) with its voices, the import names it requires, and its `pyproject.toml` extra.
+2. Add a `ModelSpec` to `MODELS` in [`src/ttsbench/registry.py`](src/ttsbench/registry.py) with its voices, the import names it requires, and its `pyproject.toml` extra. Set `weights_per_voice=True` if each voice is a separate checkpoint, so the UI flags the first request for each voice as a cold start.
 3. Add its dependencies as a new extra in `pyproject.toml` and to the `all` extra.
 
 The web UI, the benchmark, and the download script read the registry, so they pick up the new model without changes.

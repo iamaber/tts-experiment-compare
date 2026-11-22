@@ -32,4 +32,6 @@ class Piper:
         model = self._voice(voice.id)
         config = SynthesisConfig(length_scale=1.0 / speed)
         chunks = [chunk.audio_float_array for chunk in model.synthesize(text, config)]
-        return to_audio(np.concatenate(chunks), model.config.sample_rate)
+        return to_audio(
+            np.concatenate([np.zeros(0, np.float32), *chunks]), model.config.sample_rate
+        )

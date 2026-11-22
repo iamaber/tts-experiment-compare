@@ -4,6 +4,7 @@ Each model runs in its own subprocess so load time and peak memory are not share
 """
 
 import argparse
+import importlib.util
 import json
 import resource
 import statistics
@@ -165,17 +166,24 @@ def main() -> None:
     for model_id in model_ids:
         print(f"benchmarking {model_id}", file=sys.stderr)
         rows += run_isolated(model_id, args.languages, args.runs)
-    if not args.no_asr:
+    save(rows, args.output)
+    asr_installed = all(map(importlib.util.find_spec, ("jiwer", "nemo")))
+    if not args.no_asr and not asr_installed:
+        print(
+            "skipping ASR scoring: run `uv sync --extra asr` to enable it",
+            file=sys.stderr,
+        )
+    if not args.no_asr and asr_installed:
         print("scoring with ASR", file=sys.stderr)
         score(rows)
+        save(rows, args.output)
+    print(markdown(rows))
 
-    args.output.mkdir(parents=True, exist_ok=True)
-    (args.output / "results.json").write_text(
-        json.dumps(rows, indent=2, ensure_ascii=False)
-    )
-    table = markdown(rows)
-    (args.output / "results.md").write_text(table)
-    print(table)
+
+def save(rows: list[dict], output: Path) -> None:
+    output.mkdir(parents=True, exist_ok=True)
+    (output / "results.json").write_text(json.dumps(rows, indent=2, ensure_ascii=False))
+    (output / "results.md").write_text(markdown(rows))
 
 
 if __name__ == "__main__":

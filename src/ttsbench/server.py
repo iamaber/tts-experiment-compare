@@ -5,6 +5,7 @@ import threading
 import time
 from collections import defaultdict
 from pathlib import Path
+from typing import Annotated
 
 import psutil
 import soundfile as sf
@@ -12,7 +13,7 @@ import uvicorn
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import FileResponse, Response
 from fastapi.staticfiles import StaticFiles
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, StringConstraints
 
 from ttsbench.benchmark import RESULTS_DIR, load_texts
 from ttsbench.core import LANGUAGE_NAMES, Engine
@@ -23,13 +24,15 @@ WEB_DIR = Path(__file__).parent / "web"
 app = FastAPI(title="ttsbench")
 _engines: dict[str, Engine] = {}
 _locks: defaultdict[str, threading.Lock] = defaultdict(threading.Lock)
-_warm_voices: set[tuple[str, str]] = set()
+_warm: set[tuple[str, str]] = set()
 
 
 class SynthesisRequest(BaseModel):
     model: str
     voice: str
-    text: str = Field(min_length=1, max_length=2000)
+    text: Annotated[
+        str, StringConstraints(strip_whitespace=True, min_length=1, max_length=2000)
+    ]
     speed: float = Field(1.0, ge=0.5, le=2.0)
 
 
@@ -78,19 +81,21 @@ def synthesize(request: SynthesisRequest) -> Response:
     except KeyError as error:
         raise HTTPException(400, str(error.args[0])) from error
 
-    with _locks[spec.id]:
-        if spec.id not in _engines:
-            _engines[spec.id] = spec.load()
-        cold = (spec.id, voice.id) not in _warm_voices
+    # NeMo restores change the process working directory, so models sharing an engine module share a lock.
+    with _locks[spec.engine.partition(":")[0]]:
+        warm_key = (spec.id, voice.id if spec.weights_per_voice else "")
+        cold = not spec.online and warm_key not in _warm
         start = time.perf_counter()
         try:
-            audio = _engines[spec.id].synthesize(
-                request.text.strip(), voice, request.speed
-            )
+            if spec.id not in _engines:
+                _engines[spec.id] = spec.load()
+            audio = _engines[spec.id].synthesize(request.text, voice, request.speed)
         except Exception as error:
             raise HTTPException(500, f"{spec.name} failed: {error}") from error
         latency_s = time.perf_counter() - start
-        _warm_voices.add((spec.id, voice.id))
+        _warm.add(warm_key)
+    if audio.duration == 0:
+        raise HTTPException(400, f"{spec.name} produced no audio for this text")
 
     buffer = io.BytesIO()
     sf.write(buffer, audio.samples, audio.sample_rate, format="WAV", subtype="PCM_16")
