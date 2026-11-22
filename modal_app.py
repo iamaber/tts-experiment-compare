@@ -19,6 +19,21 @@ image = modal.Image.from_dockerfile(
     REPO / "docker" / "Dockerfile.gpu", context_dir=REPO
 )
 cache = modal.Volume.from_name("ttsbench-cache", create_if_missing=True)
+TORCH_CHECK = """
+import torch
+assert torch.cuda.is_available(), "PyTorch cannot see the GPU"
+print("torch", torch.__version__, "CUDA", torch.version.cuda, torch.cuda.get_device_name())
+"""
+ONNX_CHECK = """
+from ttsbench.engines.kokoro import Kokoro
+from ttsbench.engines.piper import Piper
+providers = {
+    "kokoro": Kokoro().model.sess.get_providers(),
+    "piper": Piper._voice("en_US-lessac-medium").session.get_providers(),
+}
+assert all(p[0] == "CUDAExecutionProvider" for p in providers.values()), providers
+print("onnxruntime providers", providers)
+"""
 
 
 @app.function(image=image, volumes={CACHE: cache}, cpu=8, memory=32768, timeout=3600)
@@ -27,17 +42,10 @@ def benchmark(args: list[str]) -> dict[str, str]:
         ["nvidia-smi", "--query-gpu=name,driver_version,memory.total", "--format=csv"],
         check=True,
     )
-    subprocess.run(
-        [
-            "python",
-            "-c",
-            "import torch; assert torch.cuda.is_available(), 'PyTorch cannot see the GPU';"
-            " print('torch', torch.__version__, 'CUDA', torch.version.cuda, torch.cuda.get_device_name())",
-        ],
-        check=True,
-    )
+    subprocess.run(["python", "-c", TORCH_CHECK], check=True)
     subprocess.run(["ttsbench-download"], check=True)
     cache.commit()
+    subprocess.run(["python", "-c", ONNX_CHECK], check=True)
     subprocess.run(["ttsbench-bench", "--output", str(RESULTS), *args], check=True)
     return {path.name: path.read_text() for path in RESULTS.iterdir()}
 

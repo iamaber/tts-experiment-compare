@@ -2,9 +2,10 @@ import urllib.request
 from functools import cached_property
 from pathlib import Path
 
+import onnxruntime
 from kokoro_onnx import Kokoro as KokoroOnnx
 
-from ttsbench.core import MODELS_DIR, Audio, Voice, to_audio
+from ttsbench.core import MODELS_DIR, Audio, Voice, onnx_providers, to_audio
 
 RELEASE = (
     "https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0"
@@ -31,7 +32,10 @@ class Kokoro:
 
     @cached_property
     def model(self) -> KokoroOnnx:
-        return KokoroOnnx(str(_fetch(FILES[0])), str(_fetch(FILES[1])))
+        session = onnxruntime.InferenceSession(
+            str(_fetch(FILES[0])), providers=onnx_providers()
+        )
+        return KokoroOnnx.from_session(session, str(_fetch(FILES[1])))
 
     def synthesize(self, text: str, voice: Voice, speed: float) -> Audio:
         samples, sample_rate = self.model.create(

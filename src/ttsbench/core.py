@@ -1,6 +1,7 @@
 import importlib.util
 import os
 from dataclasses import dataclass
+from functools import cache
 from pathlib import Path
 from typing import Literal, Protocol
 
@@ -54,3 +55,15 @@ def torch_device() -> str:
     if requested := os.environ.get("TTSBENCH_DEVICE"):
         return requested
     return "cuda" if torch.cuda.is_available() else "cpu"
+
+
+@cache
+def onnx_providers() -> list[str]:
+    import onnxruntime
+
+    if os.environ.get("TTSBENCH_DEVICE") == "cpu":
+        return ["CPUExecutionProvider"]
+    if "CUDAExecutionProvider" not in onnxruntime.get_available_providers():
+        return ["CPUExecutionProvider"]
+    onnxruntime.preload_dlls()
+    return ["CUDAExecutionProvider", "CPUExecutionProvider"]

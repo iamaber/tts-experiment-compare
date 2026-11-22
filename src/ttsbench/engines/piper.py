@@ -5,7 +5,7 @@ import numpy as np
 from huggingface_hub import hf_hub_download
 from piper import PiperVoice, SynthesisConfig
 
-from ttsbench.core import Audio, Voice, to_audio
+from ttsbench.core import Audio, Voice, onnx_providers, to_audio
 
 REPO = "rhasspy/piper-voices"
 
@@ -26,7 +26,9 @@ class Piper:
     @staticmethod
     @cache
     def _voice(voice_id: str) -> PiperVoice:
-        return PiperVoice.load(_fetch(voice_id))
+        return PiperVoice.load(
+            _fetch(voice_id), use_cuda="CUDAExecutionProvider" in onnx_providers()
+        )
 
     def synthesize(self, text: str, voice: Voice, speed: float) -> Audio:
         model = self._voice(voice.id)

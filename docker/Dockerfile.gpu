@@ -5,6 +5,7 @@ ENV UV_COMPILE_BYTECODE=1 \
     UV_LINK_MODE=copy \
     UV_NO_CACHE=1 \
     UV_PROJECT_ENVIRONMENT=/opt/venv \
+    VIRTUAL_ENV=/opt/venv \
     PATH=/opt/venv/bin:$PATH \
     HF_HOME=/cache/huggingface \
     NEMO_CACHE_DIR=/cache/nemo \
@@ -18,5 +19,11 @@ RUN uv sync --frozen --all-extras --no-install-project
 COPY src src
 COPY benchmarks/texts.json benchmarks/texts.json
 RUN uv sync --frozen --all-extras
+
+# onnxruntime and onnxruntime-gpu install the same module, so swap them at the locked version.
+# The cuda and cudnn extras add the CUDA 13 libraries it needs that PyTorch does not ship, such as cuRAND.
+RUN version=$(uv pip show onnxruntime | sed -n 's/^Version: //p') \
+    && uv pip uninstall onnxruntime \
+    && uv pip install "onnxruntime-gpu[cuda,cudnn]==${version}"
 
 CMD ["sh", "-c", "ttsbench-download && ttsbench-bench"]
